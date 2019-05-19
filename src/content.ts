@@ -1,36 +1,40 @@
 import * as flyd from "flyd"
 import { Map } from "immutable"
+import { Record, RecordOf } from "immutable"
 
-import * as state from "@src/content/state"
-
+import * as mode from "@src/content/mode"
 import * as modeindicator from "@src/content/modeindicator"
+import * as meiosis from "@src/lib/meiosis"
 
-function Init() {
-  modeindicator.Init()
+interface IContentState {
+  mode: mode.ModeState
+  modeindicator: modeindicator.ModeIndicatorState
+}
+const ContentStateFactory = Record<IContentState>({
+  mode: mode.InitialState(),
+  modeindicator: modeindicator.InitialState(),
+})
+export type ContentState = RecordOf<IContentState>
+export type ContentAction = (oldState: ContentState) => ContentState
+
+function Initialize() {
+  modeindicator.Initialize()
+  mode.Initialize()
 }
 
-
-function View(contentstate: state.ContentState) {
-  console.log(contentstate)
-  state.View(contentstate, state.Actions)
+function View(state: ContentState) {
+  console.log(state)
+  mode.View(state, actions)
+  modeindicator.View(state, actions)
 }
 
-const action_stream: flyd.Stream<state.ContentAction> = flyd.stream()
-const state_stream: flyd.Stream<state.ContentState> = flyd.scan((s, a) => a(s), state.Initial(), action_stream)
+const action_stream: flyd.Stream<ContentAction> = flyd.stream()
+const state_stream: flyd.Stream<ContentState> = flyd.scan((s, a) => a(s), ContentStateFactory(), action_stream)
 const output_stream = state_stream.map(View)
 
-// function ChangeMode(newMode: Mode): Action {
-//   return (state: ContentState) => {
-//     state.mode = newMode
-//     return state
-//   }
-// }
+const actions = {
+  mode: meiosis.MapActions("mode", mode.Actions, action_stream),
+  modeindicator: meiosis.MapActions("modeindicator", modeindicator.Actions, action_stream)
+}
 
-// action_stream(ChangeMode("ignore"))
-// action_stream(ChangeMode("normal"))
-// action_stream(ChangeMode("normal"))
-// action_stream(ChangeMode("ignore"))
-
-
-
-Init()
+Initialize()

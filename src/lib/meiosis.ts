@@ -1,11 +1,11 @@
-export interface MeiosisComponent<ComponentStateType, ComponentActionsType> {
-  Initial: () => ComponentStateType
-  Actions: (apply: (ComponentStateType) => ComponentStateType) => ComponentActionsType
-}
+// export interface MeiosisComponent<ComponentStateType, ComponentActionsType> {
+//   Initial: () => ComponentStateType
+//   Actions: (apply: (ComponentStateType) => ComponentStateType) => ComponentActionsType
+// }
 
 
-// type ComponentActions<ComponentAction> = (apply: (f: ComponentAction) => void) => { [action: string]: ComponentAction}
-type ArgumentsType<T> = T extends (...args: infer U) => any ? U: never;
+// // type ComponentActions<ComponentAction> = (apply: (f: ComponentAction) => void) => { [action: string]: ComponentAction}
+// type ArgumentsType<T> = T extends (...args: infer U) => any ? U: never;
 
 // function MapActions<ComponentAction, A extends object, K extends keyof A>(
 //   id: keyof IContentState,
@@ -20,7 +20,7 @@ type ArgumentsType<T> = T extends (...args: infer U) => any ? U: never;
 
 
 
-function MapActions(
+export function MapActions(
   id,
   actions,
   applyForContent,

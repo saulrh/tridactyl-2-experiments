@@ -1,5 +1,6 @@
 import * as flyd from "flyd"
 import { Record, RecordOf } from "immutable"
+import * as content from "@src/content"
 
 export type Mode =
   | "normal"
@@ -23,7 +24,7 @@ function RotateState(state: ModeState): ModeState {
   }
 }
 
-export function Initial(): ModeState {
+export function InitialState(): ModeState {
   return ModeStateFactory({mode: "ignore"})
 }
 
@@ -36,4 +37,10 @@ export function Actions(apply: (f: ModeAction) => void) {
       apply((state) => RotateState(state))
     },
   }
+}
+
+export function View(state: content.ContentState, actions) {
+}
+
+export function Initialize() {
 }
