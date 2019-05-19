@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "Node",
+    "noEmitOnError": true,
+    "outDir": "./build/tsc-out",
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "target": "ES2017",
+    "lib": ["ES2017","dom", "dom.iterable"],
+    "typeRoots": ["node_modules/@types", "src/@types"],
+    "experimentalDecorators": true,
+    "alwaysStrict": true,
+    "baseUrl": "src/",
+    "paths": {
+      "@src/*": ["*"]
+    }
+  }
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./src/**/*.test.ts"
+  ]
+}
