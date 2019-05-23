@@ -1,42 +1,23 @@
 import * as flyd from "flyd"
-import { Map } from "immutable"
-import { Record, RecordOf } from "immutable"
 
-import * as mode from "@src/content/mode"
-import * as keys from "@src/content/keys"
-import * as meiosis from "@src/lib/meiosis"
+import * as state from "@src/content/state"
+import * as actions from "@src/content/actions"
 
-// The state itself
-interface IContentState {
-  mode: mode.ModeState
-  keys: keys.KeysState
-}
-const ContentStateFactory = Record<IContentState>({
-  mode: mode.InitialState(),
-  keys: keys.InitialState(),
-})
-export type ContentState = RecordOf<IContentState>
-export type ContentAction = (oldState: ContentState) => ContentState
-
-const action_stream: flyd.Stream<ContentAction> = flyd.stream()
-const state_stream: flyd.Stream<ContentState> = flyd.scan((s, a) => a(s), ContentStateFactory(), action_stream)
-
-// Available actions
-const actions = {
-  mode: meiosis.MapActions("mode", mode.Actions, action_stream),
-  keys: meiosis.MapActions("keys", keys.Actions, action_stream),
-}
+const action_stream: flyd.Stream<actions.ContentAction> = flyd.stream()
+const state_stream: flyd.Stream<state.ContentState> = flyd.scan(actions.Apply, state.InitialState(), action_stream)
 
 // Drive responses to changes of state
-function View(state: ContentState) {
+function View(state: state.ContentState) {
   console.log(state)
 }
 const output_stream = state_stream.map(View)
 
 // Install listeners and start things running
 function Initialize() {
-  mode.Initialize()
-  keys.Initialize()
 }
 
 Initialize()
+
+action_stream({
+  action: "mode/ChangeMode",
+})
