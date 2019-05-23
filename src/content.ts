@@ -1,10 +1,18 @@
 import * as flyd from "flyd"
 
 import * as state from "@src/content/state"
-import * as actions from "@src/content/actions"
+import * as mode from "@src/content/mode"
+import * as keys from "@src/content/keys"
 
-const action_stream: flyd.Stream<actions.ContentAction> = flyd.stream()
-const state_stream: flyd.Stream<state.ContentState> = flyd.scan(actions.Apply, state.InitialState(), action_stream)
+export type ContentAction = (s: state.ContentState, actions) => state.ContentState
+
+const action_stream: flyd.Stream<ContentAction> = flyd.stream()
+
+export const actions = {
+  mode: mode.Actions(action_stream),
+}
+
+const state_stream: flyd.Stream<state.ContentState> = flyd.scan((s, a) => a(s, actions), state.InitialState(), action_stream)
 
 // Drive responses to changes of state
 function View(state: state.ContentState) {
@@ -14,10 +22,8 @@ const output_stream = state_stream.map(View)
 
 // Install listeners and start things running
 function Initialize() {
+  keys.Initialize(actions)
+  console.log("loaded")
 }
 
 Initialize()
-
-action_stream({
-  action: "mode/ChangeMode",
-})

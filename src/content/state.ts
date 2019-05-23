@@ -53,7 +53,7 @@ export type GobbleState = immutable.RecordOf<IGobbleState>;
 //                probably still have background components.
 //              - A cut-down version of runtime-dispatch can deal with that.
 //      - Native messenger API?
-export interface ContentState {
+interface IContentState {
   mode: Mode,
   keyseq: IKeySeqState,
 
@@ -68,10 +68,10 @@ export interface ContentState {
 
   // If we end up needing a cache, then it will go here, too.
 }
-
+export type ContentState = immutable.RecordOf<IContentState>
 
 export function InitialState(): ContentState {
-  return {
+  return immutable.Record<IContentState>({
     mode: "normal",
     keyseq: {
       keys: immutable.List<keys.Key>([]),
@@ -99,5 +99,5 @@ export function InitialState(): ContentState {
     gobble: immutable.Record<IGobbleState>({
       gobbled: immutable.List<keys.Key>([])
     })(),
-  }
+  })()
 }
