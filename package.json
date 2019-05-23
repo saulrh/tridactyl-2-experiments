@@ -10,6 +10,7 @@
     "copy-webpack-plugin": "^5.0.3",
     "flyd": "^0.2.8",
     "immutable": "^4.0.0-rc.12",
+    "mithril": "^2.0.0-rc.4",
     "source-map-loader": "^0.2.4",
     "typescript": "^3.4.5",
     "webpack": "^4.31.0"
