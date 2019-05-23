@@ -1,4 +1,3 @@
-import * as flyd from "flyd"
 import { Record, RecordOf } from "immutable"
 import * as content from "@src/content"
 
@@ -11,7 +10,7 @@ interface IModeState {
 }
 export type ModeState = RecordOf<IModeState>
 const ModeStateFactory = Record<IModeState>({mode: "normal"})
-export type ModeAction = (oldState: ModeState) => ModeState
+type ModeAction = (oldState: ModeState) => ModeState
 
 function ChangeMode(state: ModeState, newMode: Mode): ModeState {
   return state.merge({mode: newMode})
@@ -37,9 +36,6 @@ export function Actions(apply: (f: ModeAction) => void) {
       apply((state) => RotateState(state))
     },
   }
-}
-
-export function View(state: content.ContentState, actions) {
 }
 
 export function Initialize() {

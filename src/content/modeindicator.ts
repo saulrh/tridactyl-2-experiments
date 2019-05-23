@@ -28,14 +28,6 @@ function AddModeIndicator() {
   }
 }
 
-export function View(state: content.ContentState, actions) {
-  state.modeindicator
-}
-
 export function InitialState(): ModeIndicatorState {
   return ModeIndicatorStateFactory({})
-}
-
-export function Actions(apply: (f: ModeIndicatorAction) => void) {
-  return {}
 }
