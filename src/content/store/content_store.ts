@@ -3,6 +3,7 @@ import { modeReducer } from "@src/content/store/mode/reducers"
 import { createStore, combineReducers, applyMiddleware } from "redux"
 import thunkMiddleware from "redux-thunk"
 import { createLogger } from "redux-logger"
+import { renderImmutable } from "@src/lib/render_immutable"
 
 const rootReducer = combineReducers({
   mode: modeReducer,
@@ -11,7 +12,9 @@ const rootReducer = combineReducers({
 
 export type ContentState = ReturnType<typeof rootReducer>;
 
-const loggerMiddleware = createLogger()
+const loggerMiddleware = createLogger({
+  stateTransformer: renderImmutable
+})
 
 export function configureStore() {
   return createStore(

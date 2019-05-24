@@ -2365,6 +2365,13 @@ redux-logger@^3.0.6:
   dependencies:
     deep-diff "^0.3.5"
 
+redux-subscriber@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/redux-subscriber/-/redux-subscriber-1.1.0.tgz#3cac28a674cec07b6e9e015ca7aabbbdac155543"
+  integrity sha1-PKwopnTOwHtungFcp6q7vawVVUM=
+  dependencies:
+    object-path "^0.11.3"
+
 redux-thunk@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-2.3.0.tgz#51c2c19a185ed5187aaa9a2d08b666d0d6467622"

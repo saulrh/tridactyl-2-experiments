@@ -11,6 +11,7 @@
     "immutable": "^4.0.0-rc.12",
     "redux": "^4.0.1",
     "redux-logger": "^3.0.6",
+    "redux-subscriber": "^1.1.0",
     "redux-thunk": "^2.3.0",
     "source-map-loader": "^0.2.4",
     "typescript": "^3.4.5",
