@@ -1,5 +1,6 @@
-const { TsConfigPathsPlugin } = require("awesome-typescript-loader")
+// const { TsConfigPathsPlugin } = require("awesome-typescript-loader")
 const CopyWebPackPlugin = require("copy-webpack-plugin")
+const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
   mode: "development",
@@ -22,8 +23,8 @@ module.exports = {
 
   module: {
     rules: [
-      // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-      { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
+      // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
+      { test: /\.tsx?$/, loader: "ts-loader" },
 
       // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
       { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },

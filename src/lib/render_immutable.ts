@@ -1,14 +1,11 @@
-import * as immutable from "immutable"
+import * as immutable from 'immutable';
 
-export function renderImmutable(state) {
-  let rendered = {}
-  for (const i in state) {
-    const v = state[i]
-    if (immutable.isImmutable(v)) {
-      rendered[i] = v.toJS();
+export function renderImmutable<T extends {}, K extends keyof T>(state: T) {
+  return Object.keys(state).reduce((acc, el) => {
+    if (immutable.isImmutable(el)) {
+      return el.toJS();
     } else {
-      rendered[i] = v
+      return el;
     }
-  }
-  return rendered
+  }, {});
 }

@@ -1,25 +1,23 @@
-import * as immutable from "immutable"
+import * as immutable from 'immutable';
 
-export const PUSH_KEY = "@keys/PUSH_KEY"
+export const PUSH_KEY = '@keys/PUSH_KEY';
 interface PushKeyAction {
-  type: typeof PUSH_KEY
-  key: Key
+  type: typeof PUSH_KEY;
+  key: Key;
 }
 
-export const CLEAR_KEYS = "@keys/CLEAR_KEYS"
+export const CLEAR_KEYS = '@keys/CLEAR_KEYS';
 interface ClearKeysAction {
-  type: typeof CLEAR_KEYS
+  type: typeof CLEAR_KEYS;
 }
 
-export type KeysActionTypes =
-  | PushKeyAction
-  | ClearKeysAction
+export type KeysActionTypes = PushKeyAction | ClearKeysAction;
 
 export interface Key {
-  key: string,
+  key: string;
 }
 
-export interface IKeysState {
-  keys: immutable.List<Key>
+export interface KeysStateInterface {
+  keys: immutable.List<Key>;
 }
-export type KeysState = immutable.RecordOf<IKeysState>
+export type KeysState = immutable.RecordOf<KeysStateInterface>;
