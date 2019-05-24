@@ -1,3 +1,5 @@
+import * as immutable from "immutable"
+
 export const PUSH_KEY = "PUSH_KEY"
 interface PushKeyAction {
   type: typeof PUSH_KEY
@@ -17,6 +19,7 @@ export interface Key {
   key: string,
 }
 
-export interface KeysState {
-  readonly keys: Array<Key>
+export interface IKeysState {
+  keys: immutable.List<Key>
 }
+export type KeysState = immutable.RecordOf<IKeysState>

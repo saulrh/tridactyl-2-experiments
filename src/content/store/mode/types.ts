@@ -1,3 +1,5 @@
+import * as immutable from "immutable"
+
 export const CHANGE_MODE = "CHANGE_MODE"
 interface ChangeModeAction {
   type: typeof CHANGE_MODE
@@ -20,6 +22,7 @@ export type Mode =
   | typeof MODE_NORMAL
   | typeof MODE_IGNORE
 
-export interface ModeState {
+export interface IModeState {
   readonly mode: Mode
 }
+export type ModeState = immutable.RecordOf<IModeState>
