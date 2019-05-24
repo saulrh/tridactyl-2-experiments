@@ -1,11 +1,10 @@
 export const CHANGE_MODE = "CHANGE_MODE"
-export const ROTATE_MODE = "ROTATE_MODE"
-
 interface ChangeModeAction {
   type: typeof CHANGE_MODE
   newMode: Mode
 }
 
+export const ROTATE_MODE = "ROTATE_MODE"
 interface RotateModeAction {
   type: typeof ROTATE_MODE
 }
@@ -22,5 +21,5 @@ export type Mode =
   | typeof MODE_IGNORE
 
 export interface ModeState {
-  mode: Mode
+  readonly mode: Mode
 }

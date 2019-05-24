@@ -4,19 +4,21 @@ import * as dom from "@src/lib/dom"
 
 type KeyboardCallback = (k: KeyboardEvent) => void
 
-function listenToElement(elem: HTMLElement | Window, keyDown: KeyboardCallback, keyUp: KeyboardCallback) {
-  elem.removeEventListener("keydown", keyDown, true)
+function listenToElement(
+  elem: HTMLElement | Window,
+  keyDown: KeyboardCallback,
+  keyUp: KeyboardCallback,
+) {
   elem.addEventListener("keydown", keyDown, true)
-  elem.removeEventListener("keyup", keyUp, true)
   elem.addEventListener("keyup", keyUp, true)
 }
 
 export function startListening(store: content_store.ContentStore) {
-  const keyUp = (event: KeyboardEvent) => {
-    // store.dispatch(keys_actions.pushKey(event))
-  }
   const keyDown = (event: KeyboardEvent) => {
     store.dispatch(keys_actions.pushKey(event))
+  }
+  const keyUp = (event: KeyboardEvent) => {
+    // store.dispatch(keys_actions.pushKey(event))
   }
 
   listenToElement(window, keyUp, keyDown)

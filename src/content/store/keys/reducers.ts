@@ -15,12 +15,18 @@ export function keysReducer(
 ): KeysState {
   switch (action.type) {
     case PUSH_KEY:
-      return {
-        keys: [...state.keys, action.key]
+      if (action.key.key == "c") {
+        return {
+          keys: [],
+        }
+      } else {
+        return {
+          keys: [...state.keys, action.key],
+        }
       }
     case CLEAR_KEYS:
       return {
-        keys: []
+        keys: [],
       }
     default:
       return state
