@@ -1,23 +1,13 @@
-import * as flyd from "flyd"
+import * as content_store from "@src/content/store/content_store"
+import * as mode_actions from "@src/content/store/mode/actions"
+import { MODE_NORMAL, MODE_IGNORE } from "@src/content/store/mode/types"
+import * as keys_actions from "@src/content/store/keys/actions"
+import * as key_listener from "@src/content/key_listener"
 
-import * as state from "@src/content/state"
-import * as actions from "@src/content/actions"
+const store = content_store.MakeContentStore()
 
-const action_stream: flyd.Stream<actions.ContentAction> = flyd.stream()
-const state_stream: flyd.Stream<state.ContentState> = flyd.scan(actions.Apply, state.InitialState(), action_stream)
+console.log(store.getState())
 
-// Drive responses to changes of state
-function View(state: state.ContentState) {
-  console.log(state)
-}
-const output_stream = state_stream.map(View)
+const unsubscribe = store.subscribe(() => console.log(store.getState()))
 
-// Install listeners and start things running
-function Initialize() {
-}
-
-Initialize()
-
-action_stream({
-  action: "mode/ChangeMode",
-})
+key_listener.startListening(store)

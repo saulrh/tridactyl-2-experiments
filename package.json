@@ -1,16 +1,15 @@
 {
-  "name": "tri-meiosis",
+  "name": "tri-2-experiments-saulrh",
   "version": "0.0.1",
-  "description": "Green-fields exploration of a Tridactyl 2 using the meiosis pattern for everything",
+  "description": "Green-fields explorations for a Tridactyl 2",
   "main": "build/content.js",
   "author": "Saul Reynolds-Haertle",
   "license": "Apache-2.0",
   "dependencies": {
     "awesome-typescript-loader": "^5.2.1",
     "copy-webpack-plugin": "^5.0.3",
-    "flyd": "^0.2.8",
-    "immutable": "^4.0.0-rc.12",
-    "mithril": "^2.0.0-rc.4",
+    "redux": "^4.0.1",
+    "redux-devtools-extension": "^2.13.8",
     "source-map-loader": "^0.2.4",
     "typescript": "^3.4.5",
     "webpack": "^4.31.0"

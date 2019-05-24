@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Tridactyl-Meiosis",
+  "name": "saulrh's Tridactyl 2 Experiments",
   "version": "0.0.1",
   // "background": { },
   "content_scripts": [
@@ -16,7 +16,7 @@
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "tridactyl-meiosis@saulrh.com",
+      "id": "tridactyl-2-experiments@saulrh.com",
       "strict_min_version": "66.0"
     }
   }
