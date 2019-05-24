@@ -13,7 +13,8 @@
     "baseUrl": "src/",
     "paths": {
       "@src/*": ["*"]
-    }
+    },
+    "importHelpers": true
   }
   "include": [
     "./src/**/*"
