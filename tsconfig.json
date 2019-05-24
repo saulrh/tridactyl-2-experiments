@@ -1,20 +1,31 @@
 {
   "compilerOptions": {
-    "moduleResolution": "Node",
-    "noEmitOnError": true,
-    "outDir": "./build/tsc-out",
-    "sourceMap": true,
-    "noImplicitAny": false,
-    "target": "ES2017",
-    "lib": ["ES2017","dom", "dom.iterable"],
-    "typeRoots": ["node_modules/@types", "src/@types"],
-    "experimentalDecorators": true,
     "alwaysStrict": true,
     "baseUrl": "src/",
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "incremental": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "ES2017",
+    ],
+    "moduleResolution": "Node",
+    "noEmitOnError": true,
+    "noImplicitAny": false,
+    "noImplicitThis": true,
+    "outDir": "./build/tsc-out",
     "paths": {
-      "@src/*": ["*"]
+      "@src/*": ["*"],
     },
-    "importHelpers": true
+    "sourceMap": true,
+    "strictBindCallApply": true
+    "target": "ES2017",
+    "typeRoots": [
+      "node_modules/@types",
+      "src/@types",
+    ],
   }
   "include": [
     "./src/**/*"

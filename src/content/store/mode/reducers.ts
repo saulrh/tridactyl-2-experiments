@@ -1,6 +1,6 @@
 import * as immutable from "immutable"
 import * as mode_types from "@src/content/store/mode/types"
-import * as mode_actions from "@src/content/store/mode/actions"
+import * as mode_actions_sync from "@src/content/store/mode/actions_sync"
 
 import {
   CHANGE_MODE,
@@ -21,14 +21,13 @@ export function modeReducer(
 ): ModeState {
   switch (action.type) {
     case CHANGE_MODE:
-      return state.merge({
-        mode: action.newMode
-      })
+      return state.set("mode", action.newMode)
     case ROTATE_MODE:
-      return modeReducer(state, mode_actions.changeMode({
+      const newMode = {
         MODE_NORMAL: MODE_IGNORE,
         MODE_IGNORE: MODE_NORMAL,
-      }[state.mode]))
+      }[state.mode]
+      return modeReducer(state, mode_actions_sync.changeMode(newMode))
     default:
       return state
   }

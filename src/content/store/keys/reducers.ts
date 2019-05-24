@@ -1,6 +1,6 @@
 import * as immutable from "immutable"
 import * as keys_types from "@src/content/store/keys/types"
-import * as keys_actions from "@src/content/store/keys/actions"
+import * as keys_actions_sync from "@src/content/store/keys/actions_sync"
 
 import {
   PUSH_KEY,
@@ -20,16 +20,12 @@ export function keysReducer(
   switch (action.type) {
     case PUSH_KEY:
       if (action.key.key == "c") {
-        return keysReducer(state, keys_actions.clearKeys())
+        return keysReducer(state, keys_actions_sync.clearKeys())
       } else {
-        return state.merge({
-          keys: state.keys.concat(action.key),
-        })
+        return state.set("keys", state.keys.concat(action.key))
       }
     case CLEAR_KEYS:
-      return state.merge({
-        keys: immutable.List<keys_types.Key>(),
-      })
+      return state.set("keys", immutable.List<keys_types.Key>())
     default:
       return state
   }

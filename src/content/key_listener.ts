@@ -1,5 +1,5 @@
 import * as content_store from "@src/content/store/content_store"
-import * as keys_actions from "@src/content/store/keys/actions"
+import * as keys_actions_sync from "@src/content/store/keys/actions_sync"
 import * as dom from "@src/lib/dom"
 
 type KeyboardCallback = (k: KeyboardEvent) => void
@@ -15,7 +15,7 @@ function listenToElement(
 
 export function startListening(store: content_store.ContentStore) {
   const keyDown = (event: KeyboardEvent) => {
-    store.dispatch(keys_actions.pushKey(event))
+    store.dispatch(keys_actions_sync.pushKey(event))
   }
   const keyUp = (event: KeyboardEvent) => {
     // store.dispatch(keys_actions.pushKey(event))

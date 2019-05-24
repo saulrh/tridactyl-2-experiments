@@ -1,12 +1,12 @@
 import * as immutable from "immutable"
 
-export const CHANGE_MODE = "CHANGE_MODE"
+export const CHANGE_MODE = "@mode/CHANGE_MODE"
 interface ChangeModeAction {
   type: typeof CHANGE_MODE
   newMode: Mode
 }
 
-export const ROTATE_MODE = "ROTATE_MODE"
+export const ROTATE_MODE = "@mode/ROTATE_MODE"
 interface RotateModeAction {
   type: typeof ROTATE_MODE
 }
