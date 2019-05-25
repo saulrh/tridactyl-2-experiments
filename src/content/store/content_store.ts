@@ -1,5 +1,6 @@
 import { keysReducer } from '@src/content/store/keys/reducers';
 import { modeReducer } from '@src/content/store/mode/reducers';
+import { commandlineFrameReducer } from '@src/content/store/commandline_frame/reducers';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import { createLogger } from 'redux-logger';
@@ -8,6 +9,7 @@ import { renderImmutable } from '@src/lib/render_immutable';
 const rootReducer = combineReducers({
   mode: modeReducer,
   keys: keysReducer,
+  commandlineFrame: commandlineFrameReducer,
 });
 
 export type ContentState = ReturnType<typeof rootReducer>;

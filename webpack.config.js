@@ -17,7 +17,7 @@ module.exports = {
   devtool: "source-map",
 
   resolve: {
-    extensions: [".ts", ".js", ".json"],
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
     plugins: [new TsConfigPathsPlugin()],
   },
 
@@ -34,6 +34,10 @@ module.exports = {
   plugins: [
     new CopyWebPackPlugin([
       { from: "src/manifest.json" },
+      {
+        from: "src/static",
+        to: "static",
+      },
     ]),
   ],
 }
