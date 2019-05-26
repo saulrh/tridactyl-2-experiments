@@ -1,42 +1,52 @@
 import * as flyd from "flyd"
-import { Map } from "immutable"
+import { Map, List } from "immutable"
 import { Record, RecordOf } from "immutable"
 
-import * as mode from "@src/content/mode"
-import * as keys from "@src/content/keys"
-import * as meiosis from "@src/lib/meiosis"
+/*
+ * Meiosis demo in typescript with immutable.js
+ *
+ * The actions are a bit verbose, but less so than redux and we could write
+ * some helpers or adapt something like patchinko to make it less so.
+ *
+ * Splitting the work into components is harder, but I don't think we really need to do that.
+ *
+ * Type checking and immutable.js interop are both pretty good. If immutable.js
+ * is a pain or something then we could quite easily get compile time
+ * guarantees on the state object, I think.
+ *
+ * Using immutable.merge rather than somerecord.merge() loses compile-time type checking, sadly.
+ */
+const initial = Record({
+    keys: List<any>()
+})()
 
-// The state itself
-interface IContentState {
-  mode: mode.ModeState
-  keys: keys.KeysState
-}
-const ContentStateFactory = Record<IContentState>({
-  mode: mode.InitialState(),
-  keys: keys.InitialState(),
+// type ContentState = RecordOf<{keys: List<any>}>
+type ContentState = typeof initial
+
+type Reducer = (model: ContentState) => ContentState
+
+type Updates = flyd.Stream<Reducer>
+type Models = flyd.Stream<ContentState>
+
+const createActions = (updates: Updates) => ({
+    keydown: (key: string) => updates(model => model.merge({ keys: model.keys.concat([key]) })),
+    // notvalid: () => updates(m => 4)
 })
-export type ContentState = RecordOf<IContentState>
-export type ContentAction = (oldState: ContentState) => ContentState
 
-const action_stream: flyd.Stream<ContentAction> = flyd.stream()
-const state_stream: flyd.Stream<ContentState> = flyd.scan((s, a) => a(s), ContentStateFactory(), action_stream)
+const updates = flyd.stream<Reducer>()
+const models = flyd.scan((state: ContentState, fn: Reducer) => fn(state), initial, updates)
 
-// Available actions
-const actions = {
-  mode: meiosis.MapActions("mode", mode.Actions, action_stream),
-  keys: meiosis.MapActions("keys", keys.Actions, action_stream),
-}
+const actions = createActions(updates)
 
-// Drive responses to changes of state
-function View(state: ContentState) {
-  console.log(state)
-}
-const output_stream = state_stream.map(View)
+// Example action
 
-// Install listeners and start things running
-function Initialize() {
-  mode.Initialize()
-  keys.Initialize()
-}
+const act: Reducer = (model: ContentState) => model.merge({keys: List([1])})
+updates(act)
 
-Initialize()
+// Views
+
+models.map(m => console.log(m.toString()))
+
+// Listeners
+
+addEventListener("keydown", (ke: KeyboardEvent) => actions.keydown(ke.key))
