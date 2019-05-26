@@ -42,7 +42,21 @@ const createActions = (updates: Updates) => ({
 
         // mergeDeep merges entries onto the end of Lists.
         // If we wanted to perform some other op on the deep object we'd need setIn:
-        model.setIn(['keyseq', 'keys'], model.keyseq.keys.push(key))),
+        // model.setIn(['keyseq', 'keys'], model.keyseq.keys.push(key))),
+        // model.setIn(['keyseq', 'keys'], 1)), // type check failure
+        //
+        // https://github.com/immutable-js/immutable-js/issues/1462 describes a
+        // fix, but I can't get it to work.
+
+        // Imagine it's a JS obj... The patchinko patches don't look a lot nicer:
+        // O(model, { keyseq: O({ keys: O(x => x.concat([key])) }) })
+
+        // With type checking:
+        {
+            let {keyseq} = model
+            keyseq = keyseq.set('keys', keyseq.keys.push(1))
+            return model.merge({keyseq})
+        })
 
     // notvalid: () => updates(m => 4)
 })
