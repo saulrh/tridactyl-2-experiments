@@ -15,9 +15,16 @@ import { Record, RecordOf } from "immutable"
  * guarantees on the state object, I think.
  *
  * Using immutable.merge rather than somerecord.merge() loses compile-time type checking, sadly.
+ *
+ * Moving on, let's see if we can have separate state and actions for mode and keyseq.
  */
-const initial = Record({
+
+const keyseqInitial = Record({
     keys: List<any>()
+})()
+
+const initial = Record({
+    keyseq: keyseqInitial
 })()
 
 // type ContentState = RecordOf<{keys: List<any>}>
@@ -29,7 +36,14 @@ type Updates = flyd.Stream<Reducer>
 type Models = flyd.Stream<ContentState>
 
 const createActions = (updates: Updates) => ({
-    keydown: (key: string) => updates(model => model.merge({ keys: model.keys.concat([key]) })),
+    keydown: (key: string) => updates(model =>
+        // Either of these work, but neither has very good type checking
+        // model.mergeDeep({ keyseq: {keys: List([key])} } as ContentState)),
+
+        // mergeDeep merges entries onto the end of Lists.
+        // If we wanted to perform some other op on the deep object we'd need setIn:
+        model.setIn(['keyseq', 'keys'], model.keyseq.keys.push(key))),
+
     // notvalid: () => updates(m => 4)
 })
 
@@ -40,8 +54,8 @@ const actions = createActions(updates)
 
 // Example action
 
-const act: Reducer = (model: ContentState) => model.merge({keys: List([1])})
-updates(act)
+// const act: Reducer = (model: ContentState) => model.merge({keys: List([1])})
+// updates(act)
 
 // Views
 
