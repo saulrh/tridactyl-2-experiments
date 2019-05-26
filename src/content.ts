@@ -1,80 +1,87 @@
 import * as flyd from "flyd"
-import { Map, List } from "immutable"
-import { Record, RecordOf } from "immutable"
+import produce from "immer"
 
 /*
- * Meiosis demo in typescript with immutable.js
+ * Meiosis demo in typescript with immutable state.
+ *
+ * Patchinko was considered, but the type definitions aren't as good.
+ *
+ * Immutable.js was originally used, but the type checking for deep edits isn't
+ * as good as for immer.
  *
  * The actions are a bit verbose, but less so than redux and we could write
  * some helpers or adapt something like patchinko to make it less so.
- *
- * Splitting the work into components is harder, but I don't think we really need to do that.
- *
- * Type checking and immutable.js interop are both pretty good. If immutable.js
- * is a pain or something then we could quite easily get compile time
- * guarantees on the state object, I think.
- *
- * Using immutable.merge rather than somerecord.merge() loses compile-time type checking, sadly.
- *
- * Moving on, let's see if we can have separate state and actions for mode and keyseq.
  */
 
-const keyseqInitial = Record({
-    keys: List<any>()
-})()
+/**** TYPES ****/
 
-const initial = Record({
-    keyseq: keyseqInitial
-})()
+type ModeType = 'normal' | 'ignore'
 
-// type ContentState = RecordOf<{keys: List<any>}>
-type ContentState = typeof initial
+// KeySeq and Mode states could trivially be moved elsewhere if that becomes useful.
 
-type Reducer = (model: ContentState) => ContentState
+// Readonly is not recursive, but that's OK
+type ContentState = Readonly<{
+    keyseq: {
+	keys: string[]
+    },
+    mode: {
+	current: ModeType
+	previous?: ModeType
+    }
+}>
 
-type Updates = flyd.Stream<Reducer>
+const initial: ContentState = {
+    keyseq: {
+        keys: [],
+    },
+    mode: {
+	current: 'normal',
+    }
+}
+
+type Action = (model: ContentState) => ContentState
+
+type Updates = flyd.Stream<Action>
 type Models = flyd.Stream<ContentState>
 
+
+/**** Actions ****/
+
 const createActions = (updates: Updates) => ({
-    keydown: (key: string) => updates(model =>
-        // Either of these work, but neither has very good type checking
-        // model.mergeDeep({ keyseq: {keys: List([key])} } as ContentState)),
-
-        // mergeDeep merges entries onto the end of Lists.
-        // If we wanted to perform some other op on the deep object we'd need setIn:
-        // model.setIn(['keyseq', 'keys'], model.keyseq.keys.push(key))),
-        // model.setIn(['keyseq', 'keys'], 1)), // type check failure
-        //
-        // https://github.com/immutable-js/immutable-js/issues/1462 describes a
-        // fix, but I can't get it to work.
-
-        // Imagine it's a JS obj... The patchinko patches don't look a lot nicer:
-        // O(model, { keyseq: O({ keys: O(x => x.concat([key])) }) })
-
-        // With type checking:
-        {
-            let {keyseq} = model
-            keyseq = keyseq.set('keys', keyseq.keys.push(1))
-            return model.merge({keyseq})
-        })
-
-    // notvalid: () => updates(m => 4)
+    mode: modeActions(updates),
+    keyseq: keyseqActions(updates),
 })
 
-const updates = flyd.stream<Reducer>()
-const models = flyd.scan((state: ContentState, fn: Reducer) => fn(state), initial, updates)
+// Imagine these are bigger and maybe imported from different files.
+const modeActions = (updates: Updates) => ({
+    change_mode: (newmode: ModeType) => updates(model =>
+	produce(model, ({mode}) => { mode.current = newmode }))
+})
+
+const keyseqActions = (updates: Updates) => ({
+    keydown: (key: string) => updates(model =>
+	produce(model, ({keyseq}) => { keyseq.keys.push(key) })),
+})
+
+// If we ever need state/actions that require a dynamic key in the state object.
+// const moveableActions = (updates: Updates, id: keyof State) => ({
+//     someaction: () => updates(model =>
+// 	produce(model, ({[id]}) => void (id.foo = 1)))
+// })
+
+
+/**** Meiosis setup ****/
+
+const updates = flyd.stream<Action>()
+const models = flyd.scan((state: ContentState, fn: Action) => fn(state), initial, updates)
 
 const actions = createActions(updates)
 
-// Example action
-
-// const act: Reducer = (model: ContentState) => model.merge({keys: List([1])})
-// updates(act)
-
 // Views
 
-models.map(m => console.log(m.toString()))
+models.map(m => console.log(m))
+models.map(m => console.log(m.keyseq.keys))
 
 // Listeners
 
-addEventListener("keydown", (ke: KeyboardEvent) => actions.keydown(ke.key))
+addEventListener("keydown", (ke: KeyboardEvent) => actions.keyseq.keydown(ke.key))
