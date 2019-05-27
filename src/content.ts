@@ -37,9 +37,9 @@ const initial: ContentState = {
     }
 }
 
-export type Reducer = (model: ContentState) => ContentState
+export type Updater = (model: ContentState) => ContentState
 
-export type Updates = flyd.Stream<Reducer>
+export type Updates = flyd.Stream<Updater>
 export type Models = flyd.Stream<ContentState>
 
 export type Action = (...args: any[]) => Updates
@@ -75,7 +75,7 @@ const modeActions = (updates: Updates): Actions => ({
 /**** Meiosis setup ****/
 
 const updates: Updates = flyd.stream()
-const models: Models = flyd.scan((state: ContentState, fn: Reducer) => fn(state), initial, updates)
+const models: Models = flyd.scan((state: ContentState, fn: Updater) => fn(state), initial, updates)
 
 const actions = createActions(updates)
 
