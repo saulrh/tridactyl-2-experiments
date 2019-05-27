@@ -6,6 +6,7 @@
   "author": "Saul Reynolds-Haertle",
   "license": "Apache-2.0",
   "dependencies": {
+    "@types/firefox-webext-browser": "^67.0.1",
     "awesome-typescript-loader": "^5.2.1",
     "copy-webpack-plugin": "^5.0.3",
     "flyd": "^0.2.8",
