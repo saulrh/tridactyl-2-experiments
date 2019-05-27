@@ -24,9 +24,8 @@
     "webpack-webextension-plugin": "^0.2.0"
   },
   "scripts": {
-    "build": "tsc --noEmit && parcel build src/manifest.json",
-    "qbuild": "parcel build src/manifest.json",
-    "qwatch": "chokidar src -c 'parcel build src/manifest.json'",
+    "build": "webpack",
+    "watch": "webpack --watch",
     "check": "tsc --noEmit",
     "run": "web-ext run -s dist -u txti.es"
   },
