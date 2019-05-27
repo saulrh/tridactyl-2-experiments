@@ -1,6 +1,6 @@
 import produce from "immer"
 
-import {Updates, mutator} from '@src/content'
+import {Updates, mutator} from '~content'
 
 export type KeyseqState = Readonly<{
     keys: string[]

@@ -6,20 +6,24 @@
   "author": "Saul Reynolds-Haertle",
   "license": "Apache-2.0",
   "dependencies": {
-    "awesome-typescript-loader": "^5.2.1",
-    "copy-webpack-plugin": "^5.0.3",
+    "chokidar-cli": "^1.2.2",
     "flyd": "^0.2.8",
     "immer": "^3.1.2",
-    "mithril": "^2.0.0-rc.4",
-    "source-map-loader": "^0.2.4",
-    "typescript": "^3.4.5",
-    "webpack": "^4.31.0"
+    "mithril": "^2.0.0-rc.4"
   },
   "devDependencies": {
-    "webpack-cli": "^3.3.2"
+    "parcel": "^1.12.3",
+    "parcel-plugin-web-extension": "^1.5.2",
+    "typescript": "^2.4.0"
   },
   "scripts": {
-    "build": "webpack",
-    "run": "web-ext run -s build -u txti.es"
-  }
+    "build": "tsc --noEmit && parcel build src/manifest.json",
+    "qbuild": "parcel build src/manifest.json",
+    "qwatch": "chokidar src -c 'parcel build src/manifest.json'",
+    "check": "tsc --noEmit",
+    "run": "web-ext run -s dist -u txti.es"
+  },
+  "browserslist": [
+    "Firefox >= 66"
+  ]
 }

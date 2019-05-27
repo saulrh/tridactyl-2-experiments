@@ -1,7 +1,7 @@
 import * as flyd from "flyd"
 import produce from "immer"
 
-import {KeyseqState, keyseqActions, KeyseqInitial} from '@src/keyseq/state'
+import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 
 /*
  * Meiosis demo in typescript with immutable state.

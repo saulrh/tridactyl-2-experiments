@@ -12,7 +12,7 @@
     "alwaysStrict": true,
     "baseUrl": "src/",
     "paths": {
-      "@src/*": ["*"]
+      "~*": ["./*"]
     }
   },
   "include": [
