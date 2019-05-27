@@ -13,6 +13,9 @@
     "immer": "^3.1.2",
     "mithril": "^2.0.0-rc.4",
     "source-map-loader": "^0.2.4",
+    "tslint": "^5.16.0",
+    "tslint-etc": "^1.5.3",
+    "tslint-sonarts": "^1.9.0",
     "typescript": "^3.4.5",
     "webpack": "^4.31.0"
   },
