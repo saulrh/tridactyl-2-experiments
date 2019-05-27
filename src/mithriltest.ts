@@ -18,10 +18,27 @@ const Iframe = {
     m( 'iframe', vnode.attrs )
 }
 
-m.render(document.body, m('main', [
+const state = {
+  text: ''
+}
+const App = { view: () => {
+  return m('main', [
     m('h1', 'hi there'),
-    m('p', 'foo'),
+    m('p', state.text),
+    // m('input', { oninput: (e: any) => state.text = e.target.value, value: state.text }),
     m(Iframe, [
-	m('h1', 'hi again')
+      m('h1', 'hi again'),
+      m('p', state.text),
+      m('input', { oninput: (e: any) => { state.text = e.target.value; m.redraw() }, value: state.text })
     ])
-]))
+  ])
+}}
+
+m.mount(document.body, {
+  view: () => m(App)
+})
+
+Object.assign((window as any), {
+  state,
+  m,
+})
