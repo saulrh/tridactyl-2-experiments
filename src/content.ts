@@ -1,6 +1,8 @@
 import * as flyd from "flyd"
 import produce from "immer"
 
+import {KeyseqState, keyseqActions, KeyseqInitial} from '@src/keyseq/state'
+
 /*
  * Meiosis demo in typescript with immutable state.
  *
@@ -20,10 +22,8 @@ type ModeType = 'normal' | 'ignore'
 // KeySeq and Mode states could trivially be moved elsewhere if that becomes useful.
 
 // Readonly is not recursive, but that's OK
-type ContentState = Readonly<{
-    keyseq: {
-        keys: string[]
-    },
+export type ContentState = Readonly<{
+    keyseq: KeyseqState,
     mode: {
         current: ModeType
         previous?: ModeType
@@ -31,42 +31,38 @@ type ContentState = Readonly<{
 }>
 
 const initial: ContentState = {
-    keyseq: {
-        keys: [],
-    },
+    keyseq: KeyseqInitial,
     mode: {
         current: 'normal',
     }
 }
 
-type Action = (model: ContentState) => ContentState
+export type Reducer = (model: ContentState) => ContentState
 
-type Updates = flyd.Stream<Action>
-type Models = flyd.Stream<ContentState>
+export type Updates = flyd.Stream<Reducer>
+export type Models = flyd.Stream<ContentState>
 
+export type Action = (...args: any[]) => Updates
+export type Actions = {
+    [key: string]: Action
+}
 
 /**** Actions ****/
 
-const createActions = (updates: Updates) => ({
+// Helper functions to make using produce a bit less frustrating.
+export type Mutator = (model: ContentState) => void
+export const mutator = (updates: Updates, fn: Mutator) =>
+    updates(model => produce(model, fn))
+
+const createActions = (updates: Updates): { [key: string]: Actions } => ({
     mode: modeActions(updates),
     keyseq: keyseqActions(updates),
 })
 
 // Imagine these are bigger and maybe imported from different files.
-const modeActions = (updates: Updates) => ({
-    change_mode: (newmode: ModeType) => updates(model =>
-        produce(model, ({mode}) => { mode.current = newmode }))
-})
-
-const keyseqActions = (updates: Updates) => ({
-    keydown: (key: string) => updates(model =>
-        produce(model, ({keyseq}) => { keyseq.keys.push(key) })),
-    // updateCurrentTab: async _ => {
-        // await current = bg.getCurrentTab()
-        // updates(model => {
-            // if model is fresh enough:
-                // produce(model, model => { model.currenttab = current) })
-        // })
+const modeActions = (updates: Updates): Actions => ({
+    change_mode: (newmode: ModeType) => mutator(updates,
+        ({mode}) => { mode.current = newmode })
 })
 
 // If we ever need state/actions that require a dynamic key in the state object.
@@ -78,8 +74,8 @@ const keyseqActions = (updates: Updates) => ({
 
 /**** Meiosis setup ****/
 
-const updates = flyd.stream<Action>()
-const models = flyd.scan((state: ContentState, fn: Action) => fn(state), initial, updates)
+const updates: Updates = flyd.stream()
+const models: Models = flyd.scan((state: ContentState, fn: Reducer) => fn(state), initial, updates)
 
 const actions = createActions(updates)
 
