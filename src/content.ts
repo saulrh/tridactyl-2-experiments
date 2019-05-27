@@ -22,11 +22,11 @@ type ModeType = 'normal' | 'ignore'
 // Readonly is not recursive, but that's OK
 type ContentState = Readonly<{
     keyseq: {
-	keys: string[]
+        keys: string[]
     },
     mode: {
-	current: ModeType
-	previous?: ModeType
+        current: ModeType
+        previous?: ModeType
     }
 }>
 
@@ -35,7 +35,7 @@ const initial: ContentState = {
         keys: [],
     },
     mode: {
-	current: 'normal',
+        current: 'normal',
     }
 }
 
@@ -55,18 +55,24 @@ const createActions = (updates: Updates) => ({
 // Imagine these are bigger and maybe imported from different files.
 const modeActions = (updates: Updates) => ({
     change_mode: (newmode: ModeType) => updates(model =>
-	produce(model, ({mode}) => { mode.current = newmode }))
+        produce(model, ({mode}) => { mode.current = newmode }))
 })
 
 const keyseqActions = (updates: Updates) => ({
     keydown: (key: string) => updates(model =>
-	produce(model, ({keyseq}) => { keyseq.keys.push(key) })),
+        produce(model, ({keyseq}) => { keyseq.keys.push(key) })),
+    // updateCurrentTab: async _ => {
+        // await current = bg.getCurrentTab()
+        // updates(model => {
+            // if model is fresh enough:
+                // produce(model, model => { model.currenttab = current) })
+        // })
 })
 
 // If we ever need state/actions that require a dynamic key in the state object.
 // const moveableActions = (updates: Updates, id: keyof State) => ({
 //     someaction: () => updates(model =>
-// 	produce(model, ({[id]}) => void (id.foo = 1)))
+//      produce(model, ({[id]}) => void (id.foo = 1)))
 // })
 
 
