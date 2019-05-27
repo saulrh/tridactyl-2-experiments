@@ -33,6 +33,7 @@ module.exports = {
   plugins: [
     new CopyWebPackPlugin([
       { from: "src/manifest.json" },
+      { from: "src/static", to: "static" },
     ]),
   ],
 }
