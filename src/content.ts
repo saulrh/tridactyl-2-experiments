@@ -87,3 +87,5 @@ models.map(m => console.log(m.keyseq.keys))
 // Listeners
 
 addEventListener("keydown", (ke: KeyboardEvent) => actions.keyseq.keydown(ke.key))
+addEventListener("keydown", (ke: KeyboardEvent) =>
+    ke.key === 't' && (document.location.href = browser.runtime.getURL('test.html')))

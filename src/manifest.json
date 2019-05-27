@@ -9,6 +9,9 @@
       "run_at": "document_start"
     }
   ],
+  "web_accessible_resources": [
+    "test.html"
+  ],
   "content_security_policy": "script-src 'unsafe-eval' 'self'; object-src 'self'",
   "permissions": [
     "<all_urls>"
