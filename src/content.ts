@@ -89,3 +89,60 @@ models.map(m => console.log(m.keyseq.keys))
 addEventListener("keydown", (ke: KeyboardEvent) => actions.keyseq.keydown(ke.key))
 addEventListener("keydown", (ke: KeyboardEvent) =>
     ke.key === 't' && (document.location.href = browser.runtime.getURL('test.html')))
+
+// iframe experiment
+
+import * as m from 'mithril'
+
+const proxy = function(vnode: any){
+  var doc = vnode.dom.contentDocument || vnode.dom.contentWindow.document;
+
+  if (doc.readyState === "complete") {
+    m.render( vnode.dom.contentDocument.documentElement, vnode.children )
+  } else{
+    setTimeout(function(){proxy(vnode);},0);
+  }
+}
+
+const Iframe = {
+  oncreate : proxy,
+  onupdate : proxy,
+
+  view : (vnode: any) =>
+  m( 'iframe', {src: browser.runtime.getURL('blank.html')}, vnode.attrs )
+}
+
+const state = {
+  text: ''
+}
+
+const App = { view: () => {
+  return m('main', [
+    m('h1', 'hi there'),
+    m('p', state.text),
+    // m('input', { oninput: (e: any) => state.text = e.target.value, value: state.text }),
+    m(Iframe, [
+      m('h1#header', 'hi again'),
+      m('p#para', state.text),
+      m('input', { oninput: (e: any) => { state.text = e.target.value; m.redraw() }, value: state.text })
+    ])
+  ])
+}}
+
+addEventListener("keydown", (ke: KeyboardEvent) => {
+    if (ke.key === 'o') {
+        const root = document.createElement('div')
+        document.body.appendChild(root)
+
+        m.mount(root, {
+            view: () => m(App)
+        })
+
+        Object.assign((window as any), {
+            state,
+            m,
+            root,
+
+        })
+    }
+})

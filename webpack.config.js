@@ -36,6 +36,7 @@ module.exports = {
     new CopyWebPackPlugin([
       { from: "src/manifest.json" },
       { from: "src/test.html" },
+      { from: "src/blank.html" },
     ]),
   ],
 }
