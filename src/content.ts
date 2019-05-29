@@ -1,6 +1,7 @@
 import * as flyd from "flyd"
 import produce from "immer"
 import * as m from 'mithril'
+import TriInput from "~/components/input"
 
 import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 
@@ -19,6 +20,10 @@ import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 /**** TYPES ****/
 
 type ModeType = 'normal' | 'ignore'
+export type ContentAttrs = {
+    model: ContentState,
+    actions: ContentActions
+}
 
 // KeySeq and Mode states could trivially be moved elsewhere if that becomes useful.
 
@@ -72,6 +77,7 @@ const createActions = (updates: Updates) => ({ // : { [key: string]: Actions } =
     keyseq: keyseqActions(updates),
     uiframe: {
         oninput: (val: string) => mutator(updates, ({uiframe}) => { uiframe.commandline.text = val }),
+        setvisible: (b: boolean) => mutator(updates, ({uiframe}) => {uiframe.visible = b}),
     }
 })
 
@@ -145,7 +151,7 @@ const App = {
         return [
             model.uiframe.visible && m(Iframe, [
                 m('div', model.keyseq.keys.join(", ")),
-                m('input', { oninput: e => actions.uiframe.oninput(e.target.value), value: model.uiframe.commandline.text }),
+                m(TriInput, vnode.attrs)
             ])
         ]
     }
@@ -159,6 +165,8 @@ addEventListener("keydown", (ke: KeyboardEvent) => {
         m.mount(root, {
             view: () => m(App, { model: models(), actions })
         })
+
+        actions.uiframe.setvisible(true)
 
         Object.assign((window as any), {
             m,
