@@ -1,5 +1,6 @@
 import * as flyd from "flyd"
 import produce from "immer"
+import m from 'mithril'
 
 import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 
@@ -61,8 +62,9 @@ const createActions = (updates: Updates): { [key: string]: Actions } => ({
 
 // Imagine these are bigger and maybe imported from different files.
 const modeActions = (updates: Updates): Actions => ({
-    change_mode: (newmode: ModeType) => mutator(updates,
-        ({mode}) => { mode.current = newmode })
+    change_mode: (newmode: ModeType) =>
+        mutator(updates,
+                ({mode}) => { mode.current = newmode })
 })
 
 // If we ever need state/actions that require a dynamic key in the state object.
@@ -83,66 +85,52 @@ const actions = createActions(updates)
 
 models.map(m => console.log(m))
 models.map(m => console.log(m.keyseq.keys))
+models.map(_ => m.redraw())
 
 // Listeners
 
 addEventListener("keydown", (ke: KeyboardEvent) => actions.keyseq.keydown(ke.key))
 addEventListener("keydown", (ke: KeyboardEvent) =>
-    ke.key === 't' && (document.location.href = browser.runtime.getURL('test.html')))
+                 ke.key === 't' && (document.location.href = browser.runtime.getURL('test.html')))
 
 // iframe experiment
 
-import * as m from 'mithril'
-
 const proxy = function(vnode: any){
-  var doc = vnode.dom.contentDocument || vnode.dom.contentWindow.document;
+    var doc = vnode.dom.contentDocument || vnode.dom.contentWindow.document;
 
-  if (doc.readyState === "complete") {
-    m.render( vnode.dom.contentDocument.documentElement, vnode.children )
-  } else{
-    setTimeout(function(){proxy(vnode);},0);
-  }
+    if (doc.readyState === "complete") {
+        m.render( vnode.dom.contentDocument.documentElement, vnode.children )
+    } else{
+        setTimeout(function(){proxy(vnode);},0);
+    }
 }
 
 const Iframe = {
-  oncreate : proxy,
-  onupdate : proxy,
+    oncreate: proxy,
+    onupdate: proxy,
 
-  view : (vnode: any) =>
-  m( 'iframe', {src: browser.runtime.getURL('blank.html')}, vnode.attrs )
+    view: () =>
+        m('iframe', {src: browser.runtime.getURL('blank.html')})
 }
 
-const state = {
-  text: ''
+const App = {
+    view: () => [
+        m(Iframe, [
+            m('div', models().keyseq.keys.join(", ")),
+        ])
+    ]
 }
-
-const App = { view: () => {
-  return m('main', [
-    m('h1', 'hi there'),
-    m('p', state.text),
-    // m('input', { oninput: (e: any) => state.text = e.target.value, value: state.text }),
-    m(Iframe, [
-      m('h1#header', 'hi again'),
-      m('p#para', state.text),
-      m('input', { oninput: (e: any) => { state.text = e.target.value; m.redraw() }, value: state.text })
-    ])
-  ])
-}}
 
 addEventListener("keydown", (ke: KeyboardEvent) => {
     if (ke.key === 'o') {
         const root = document.createElement('div')
         document.body.appendChild(root)
 
-        m.mount(root, {
-            view: () => m(App)
-        })
+        m.mount(root, App)
 
         Object.assign((window as any), {
-            state,
             m,
             root,
-
         })
     }
 })
