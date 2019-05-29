@@ -81,7 +81,7 @@ const actions = createActions(updates)
 
 // Views
 
-models.map(m => console.log(m))
+// models.map(m => console.log(m))
 models.map(m => console.log(m.keyseq.keys))
 
 // Listeners
@@ -90,59 +90,27 @@ addEventListener("keydown", (ke: KeyboardEvent) => actions.keyseq.keydown(ke.key
 addEventListener("keydown", (ke: KeyboardEvent) =>
     ke.key === 't' && (document.location.href = browser.runtime.getURL('test.html')))
 
-// iframe experiment
+// RPC
 
-import * as m from 'mithril'
+// TODO:
+// Combine RPC funcs from other files (namespaced)
 
-const proxy = function(vnode: any){
-  var doc = vnode.dom.contentDocument || vnode.dom.contentWindow.document;
+import * as rpc from '~rpc'
 
-  if (doc.readyState === "complete") {
-    m.render( vnode.dom.contentDocument.documentElement, vnode.children )
-  } else{
-    setTimeout(function(){proxy(vnode);},0);
-  }
+export const rpcexports = {
+    stat: async () => models().mode.current,
+    nada: async () => 42,
+    err: () => { throw Error('hi there') },
 }
 
-const Iframe = {
-  oncreate : proxy,
-  onupdate : proxy,
+browser.runtime.onMessage.addListener(rpc.onMessage(rpcexports))
 
-  view : (vnode: any) =>
-  m( 'iframe', {src: browser.runtime.getURL('blank.html')}, vnode.attrs )
-}
+addEventListener('keydown', ke =>
+    ke.key === 'x' && rpc.rpc('background').nada())
 
-const state = {
-  text: ''
-}
+addEventListener('keydown', ke =>
+    ke.key === 'c' && rpc.rpc('background').submod.val(1)
 
-const App = { view: () => {
-  return m('main', [
-    m('h1', 'hi there'),
-    m('p', state.text),
-    // m('input', { oninput: (e: any) => state.text = e.target.value, value: state.text }),
-    m(Iframe, [
-      m('h1#header', 'hi again'),
-      m('p#para', state.text),
-      m('input', { oninput: (e: any) => { state.text = e.target.value; m.redraw() }, value: state.text })
-    ])
-  ])
-}}
-
-addEventListener("keydown", (ke: KeyboardEvent) => {
-    if (ke.key === 'o') {
-        const root = document.createElement('div')
-        document.body.appendChild(root)
-
-        m.mount(root, {
-            view: () => m(App)
-        })
-
-        Object.assign((window as any), {
-            state,
-            m,
-            root,
-
-        })
-    }
+Object.assign((window as any), {
+    rpc,
 })

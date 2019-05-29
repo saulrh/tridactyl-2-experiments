@@ -8,6 +8,7 @@ module.exports = {
   entry: {
     content: "./src/content.ts",
     mithriltest: "./src/mithriltest.ts",
+    background: "./src/background.ts",
   },
 
   // output: {
