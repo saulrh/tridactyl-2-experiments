@@ -27,7 +27,7 @@
     "build": "webpack",
     "watch": "webpack --watch",
     "check": "tsc --noEmit",
-    "run": "web-ext run -s dist -u txti.es"
+    "run": "web-ext run -s dist -u txti.es -u about:debugging"
   },
   "browserslist": [
     "Firefox >= 66"
