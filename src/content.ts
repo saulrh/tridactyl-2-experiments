@@ -1,6 +1,6 @@
 import * as flyd from "flyd"
 import produce from "immer"
-import * as m from 'mithril'
+import m from 'mithril'
 import TriInput from "~/components/input"
 
 import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';

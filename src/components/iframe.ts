@@ -1,4 +1,4 @@
-import * as m from 'mithril'
+import m from 'mithril'
 
 const proxy = function(vnode: any){
     var doc = vnode.dom.contentDocument || vnode.dom.contentWindow.document;

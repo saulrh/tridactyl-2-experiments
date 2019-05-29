@@ -1,4 +1,4 @@
-import * as m from "mithril"
+import m from "mithril"
 import {ContentAttrs, dispatch} from '~/content'
 
 const TriInput: m.Component<ContentAttrs> = {
