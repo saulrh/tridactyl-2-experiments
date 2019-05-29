@@ -31,6 +31,8 @@ export type ContentState = Readonly<{
     },
     uiframe: {
         visible: boolean,
+        mounted: boolean,
+        root?: HTMLElement,
         commandline: {
             text: string
         }
@@ -44,6 +46,7 @@ const initial: ContentState = {
     },
     uiframe: {
         visible: false,
+        mounted: false,
         commandline: {
             text: '',
         }
@@ -72,6 +75,20 @@ const createActions = (updates: Updates) => ({ // : { [key: string]: Actions } =
     keyseq: keyseqActions(updates),
     uiframe: {
         oninput: (val: string) => mutator(updates, ({uiframe}) => { uiframe.commandline.text = val }),
+        mount: () => mutator(updates, model => {
+            const root = document.createElementNS('http://www.w3.org/1999/xhtml', 'div')
+            document.documentElement.appendChild(root)
+            model.uiframe.mounted = true
+            model.uiframe.root = root
+        }),
+        unmount: () => mutator(updates, ({uiframe}) => {
+            uiframe.root.remove()
+            uiframe.mounted = false
+            uiframe.root = undefined
+        }),
+        setvisible: (vis: boolean) => mutator(updates, ({uiframe}) => {
+            uiframe.visible = vis
+        }),
     }
 })
 
@@ -102,7 +119,23 @@ export type ContentActions = typeof actions
 
 models.map(m => console.log(m.uiframe, m.mode, m.keyseq))
 models.map(m => console.log(m.keyseq.keys))
-models.map(_ => m.redraw())
+
+/**
+ * Render all of our visible UI if it should be visible.
+ *
+ * If it shouldn't be visible, completely remove it.
+ */
+models.map(model => {
+    if (model.uiframe.visible) {
+        if (!model.uiframe.mounted) {
+            actions.uiframe.mount()
+            return
+        }
+        m.render(model.uiframe.root, m(App, { model: models(), actions }))
+    } else if (model.uiframe.mounted) {
+        actions.uiframe.unmount()
+    }
+})
 
 // Listeners
 
@@ -131,6 +164,9 @@ addEventListener('keydown', ke =>
 addEventListener('keydown', ke =>
     ke.key === 'c' && rpc.rpc('background').submod.val(1))
 
+addEventListener('keydown', ke =>
+    ke.key === 'o' && actions.uiframe.setvisible(!models().uiframe.visible))
+
 Object.assign((window as any), {
     rpc,
 })
@@ -139,30 +175,19 @@ Object.assign((window as any), {
 
 import Iframe from '~components/iframe'
 
-const App = {
-    view: (vnode) => {
-        const { model, actions } = vnode.attrs as { model: ContentState, actions: ContentActions }
-        return [
-            model.uiframe.visible && m(Iframe, [
-                m('div', model.keyseq.keys.join(", ")),
-                m('input', { oninput: e => actions.uiframe.oninput(e.target.value), value: model.uiframe.commandline.text }),
-            ])
-        ]
-    }
+export type ContentAttrs = {
+    model: ContentState,
+    actions: ContentActions
 }
 
-addEventListener("keydown", (ke: KeyboardEvent) => {
-    if (ke.key === 'o') {
-        const root = document.createElement('div')
-        document.body.appendChild(root)
+export interface Component<Attrs = ContentAttrs> {
+    view: (vnode: m.Vnode<Attrs>) => m.Children | null | void
+}
 
-        m.mount(root, {
-            view: () => m(App, { model: models(), actions })
-        })
-
-        Object.assign((window as any), {
-            m,
-            root,
-        })
-    }
-})
+const App: m.Component<ContentAttrs> = {
+    view: ({attrs: { model, actions}}) =>
+        model.uiframe.visible && m(Iframe, [
+            m('div', model.keyseq.keys.join(", ")),
+            m('input', { oninput: e => actions.uiframe.oninput(e.target.value), value: model.uiframe.commandline.text }),
+        ])
+}
