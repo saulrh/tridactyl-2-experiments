@@ -29,8 +29,11 @@ export type ContentState = Readonly<{
         current: ModeType
         previous?: ModeType
     },
-    ui: {
-        text: string
+    uiframe: {
+        visible: boolean,
+        commandline: {
+            text: string
+        }
     },
 }>
 
@@ -39,8 +42,11 @@ const initial: ContentState = {
     mode: {
         current: 'normal',
     },
-    ui: {
-        text: '',
+    uiframe: {
+        visible: false,
+        commandline: {
+            text: '',
+        }
     },
 }
 
@@ -61,11 +67,11 @@ export type Mutator = (model: ContentState) => void
 export const mutator = (updates: Updates, fn: Mutator) =>
     updates(model => produce(model, fn))
 
-const createActions = (updates: Updates): { [key: string]: Actions } => ({
+const createActions = (updates: Updates) => ({ // : { [key: string]: Actions } => ({
     mode: modeActions(updates),
     keyseq: keyseqActions(updates),
-    ui: {
-        oninput: (val: string) => mutator(updates, ({ui}) => { ui.text = val }),
+    uiframe: {
+        oninput: (val: string) => mutator(updates, ({uiframe}) => { uiframe.commandline.text = val }),
     }
 })
 
@@ -90,9 +96,11 @@ const models: Models = flyd.scan((state: ContentState, fn: Updater) => fn(state)
 
 const actions = createActions(updates)
 
+export type ContentActions = typeof actions
+
 // Views
 
-models.map(m => console.log(m.ui, m.mode, m.keyseq))
+models.map(m => console.log(m.uiframe, m.mode, m.keyseq))
 models.map(m => console.log(m.keyseq.keys))
 models.map(_ => m.redraw())
 
@@ -133,11 +141,11 @@ import Iframe from '~components/iframe'
 
 const App = {
     view: (vnode) => {
-        const { model, actions } = vnode.attrs
+        const { model, actions } = vnode.attrs as { model: ContentState, actions: ContentActions }
         return [
-            m(Iframe, [
+            model.uiframe.visible && m(Iframe, [
                 m('div', model.keyseq.keys.join(", ")),
-                m('input', { oninput: e => actions.ui.oninput(e.target.value), value: model.ui.text }),
+                m('input', { oninput: e => actions.uiframe.oninput(e.target.value), value: model.uiframe.commandline.text }),
             ])
         ]
     }
