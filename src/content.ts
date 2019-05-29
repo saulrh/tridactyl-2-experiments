@@ -92,7 +92,7 @@ const actions = createActions(updates)
 
 // Views
 
-// models.map(m => console.log(m))
+models.map(m => console.log(m.ui, m.mode, m.keyseq))
 models.map(m => console.log(m.keyseq.keys))
 models.map(_ => m.redraw())
 
