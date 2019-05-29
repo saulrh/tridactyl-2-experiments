@@ -129,23 +129,7 @@ Object.assign((window as any), {
 
 // Iframe experiments
 
-const proxy = function(vnode: any){
-    var doc = vnode.dom.contentDocument || vnode.dom.contentWindow.document;
-
-    if (doc.readyState === "complete") {
-        m.render( vnode.dom.contentDocument.documentElement, vnode.children )
-    } else{
-        setTimeout(function(){proxy(vnode);},0);
-    }
-}
-
-const Iframe = {
-    oncreate: proxy,
-    onupdate: proxy,
-
-    view: () =>
-        m('iframe', {src: browser.runtime.getURL('blank.html')})
-}
+import Iframe from '~components/iframe'
 
 const App = {
     view: () => [
