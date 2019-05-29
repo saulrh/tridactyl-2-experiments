@@ -209,7 +209,10 @@ const App: m.Component<ContentAttrs> = {
                         m("link", { href: browser.runtime.getURL(url), rel: "stylesheet" }))
                 ]),
                 m("body", [
-                    m('pre', JSON.stringify(model)),
+                    // Can't stringify the whole model, probably because
+                    // stringify does some magic and model contains a reference
+                    // to the div that gets removed.
+                    // m('pre', JSON.stringify(model)),
                     m(TriInput, {model, actions})
                 ])
             ])
