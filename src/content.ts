@@ -1,6 +1,6 @@
 import * as flyd from "flyd"
 import produce from "immer"
-import m from 'mithril'
+import * as m from 'mithril'
 
 import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 
@@ -28,14 +28,20 @@ export type ContentState = Readonly<{
     mode: {
         current: ModeType
         previous?: ModeType
-    }
+    },
+    ui: {
+        text: string
+    },
 }>
 
 const initial: ContentState = {
     keyseq: KeyseqInitial,
     mode: {
         current: 'normal',
-    }
+    },
+    ui: {
+        text: '',
+    },
 }
 
 export type Updater = (model: ContentState) => ContentState
@@ -58,6 +64,9 @@ export const mutator = (updates: Updates, fn: Mutator) =>
 const createActions = (updates: Updates): { [key: string]: Actions } => ({
     mode: modeActions(updates),
     keyseq: keyseqActions(updates),
+    ui: {
+        oninput: (val: string) => mutator(updates, ({ui}) => { ui.text = val }),
+    }
 })
 
 // Imagine these are bigger and maybe imported from different files.
@@ -117,6 +126,7 @@ const App = {
     view: () => [
         m(Iframe, [
             m('div', models().keyseq.keys.join(", ")),
+            m('input', { oninput: e => actions.ui.oninput(e.target.value), value: models().ui.text }),
         ])
     ]
 }
