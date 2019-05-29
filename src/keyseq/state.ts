@@ -10,7 +10,7 @@ export const KeyseqInitial: KeyseqState = {
     keys: []
 }
 
-export const keyseqActions = (updates: Updates) => ({
-    keydown: (key: string) => mutator(updates,
+export const keyseqActions = {
+    keydown: (key: string) => mutator(
         ({keyseq}) => { keyseq.keys.push(key) })
-})
+}

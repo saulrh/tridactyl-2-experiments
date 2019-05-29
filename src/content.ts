@@ -59,46 +59,48 @@ export type Updater = (model: ContentState) => ContentState
 export type Updates = flyd.Stream<Updater>
 export type Models = flyd.Stream<ContentState>
 
-export type Action = (...args: any[]) => Updates
 export type Actions = {
-    [key: string]: Action
+    [key: string]: Updater
+}
+
+export function dispatch(updater: Updater) {
+    updates(updater)
 }
 
 /**** Actions ****/
 
 // Helper functions to make using produce a bit less frustrating.
 export type Mutator = (model: ContentState) => void
-export const mutator = (updates: Updates, fn: Mutator) =>
-    updates(model => produce(model, fn))
+export const mutator = (fn: Mutator) =>
+    (model: ContentState) => produce(model, fn)
 
 const createActions = (updates: Updates) => ({ // : { [key: string]: Actions } => ({
-    mode: modeActions(updates),
-    keyseq: keyseqActions(updates),
+    mode: modeActions,
+    keyseq: keyseqActions,
     uiframe: {
-        oninput: (val: string) => mutator(updates, ({uiframe}) => { uiframe.commandline.text = val }),
-        mount: () => mutator(updates, model => {
+        oninput: (val: string) => mutator(({uiframe}) => { uiframe.commandline.text = val }),
+        mount: () => mutator(model => {
             const root = document.createElementNS('http://www.w3.org/1999/xhtml', 'div')
             document.documentElement.appendChild(root)
             model.uiframe.mounted = true
             model.uiframe.root = root
         }),
-        unmount: () => mutator(updates, ({uiframe}) => {
+        unmount: () => mutator(({uiframe}) => {
             uiframe.root.remove()
             uiframe.mounted = false
             uiframe.root = undefined
         }),
-        setvisible: (vis: boolean) => mutator(updates, ({uiframe}) => {
+        setvisible: (vis: boolean) => mutator(({uiframe}) => {
             uiframe.visible = vis
         }),
     }
 })
 
 // Imagine these are bigger and maybe imported from different files.
-const modeActions = (updates: Updates): Actions => ({
+const modeActions = {
     change_mode: (newmode: ModeType) =>
-        mutator(updates,
-                ({mode}) => { mode.current = newmode })
-})
+        mutator(({mode}) => { mode.current = newmode })
+}
 
 // If we ever need state/actions that require a dynamic key in the state object.
 // const moveableActions = (updates: Updates, id: keyof State) => ({
@@ -129,18 +131,18 @@ export type ContentActions = typeof actions
 models.map(model => {
     if (model.uiframe.visible) {
         if (!model.uiframe.mounted) {
-            actions.uiframe.mount()
+            dispatch(actions.uiframe.mount())
             return
         }
         m.render(model.uiframe.root, m(App, { model: models(), actions }))
     } else if (model.uiframe.mounted) {
-        actions.uiframe.unmount()
+        dispatch(actions.uiframe.unmount())
     }
 })
 
 // Listeners
 
-addEventListener("keydown", (ke: KeyboardEvent) => actions.keyseq.keydown(ke.key))
+addEventListener("keydown", (ke: KeyboardEvent) => dispatch(actions.keyseq.keydown(ke.key)))
 addEventListener("keydown", (ke: KeyboardEvent) =>
     ke.key === 't' && (document.location.href = browser.runtime.getURL('test.html')))
 
@@ -166,7 +168,7 @@ addEventListener('keydown', ke =>
     ke.key === 'c' && rpc.rpc('background').submod.val(1))
 
 addEventListener('keydown', ke =>
-    ke.key === 'o' && actions.uiframe.setvisible(!models().uiframe.visible))
+    ke.key === 'o' && dispatch(actions.uiframe.setvisible(!models().uiframe.visible)))
 
 Object.assign((window as any), {
     rpc,
@@ -190,6 +192,9 @@ const App: m.Component<ContentAttrs> = {
         model.uiframe.visible && m(Iframe,
             {
                 src: browser.runtime.getURL('blank.html'),
+                // TODO: Use the component lifecycle events oncreate and
+                // onupdate to find the offsetHeight of the iframe and adjust
+                // height. Avoid loops.
                 style: {
                     position: 'fixed',
                     bottom: 0,
@@ -213,6 +218,7 @@ const App: m.Component<ContentAttrs> = {
                     // stringify does some magic and model contains a reference
                     // to the div that gets removed.
                     // m('pre', JSON.stringify(model)),
+                    m('pre', JSON.stringify(model.uiframe.commandline)),
                     m(TriInput, {model, actions})
                 ])
             ])
