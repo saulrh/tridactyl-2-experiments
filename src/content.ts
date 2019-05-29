@@ -1,5 +1,6 @@
 import * as flyd from "flyd"
 import produce from "immer"
+import * as m from 'mithril'
 
 import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 
@@ -27,14 +28,20 @@ export type ContentState = Readonly<{
     mode: {
         current: ModeType
         previous?: ModeType
-    }
+    },
+    ui: {
+        text: string
+    },
 }>
 
 const initial: ContentState = {
     keyseq: KeyseqInitial,
     mode: {
         current: 'normal',
-    }
+    },
+    ui: {
+        text: '',
+    },
 }
 
 export type Updater = (model: ContentState) => ContentState
@@ -57,12 +64,16 @@ export const mutator = (updates: Updates, fn: Mutator) =>
 const createActions = (updates: Updates): { [key: string]: Actions } => ({
     mode: modeActions(updates),
     keyseq: keyseqActions(updates),
+    ui: {
+        oninput: (val: string) => mutator(updates, ({ui}) => { ui.text = val }),
+    }
 })
 
 // Imagine these are bigger and maybe imported from different files.
 const modeActions = (updates: Updates): Actions => ({
-    change_mode: (newmode: ModeType) => mutator(updates,
-        ({mode}) => { mode.current = newmode })
+    change_mode: (newmode: ModeType) =>
+        mutator(updates,
+                ({mode}) => { mode.current = newmode })
 })
 
 // If we ever need state/actions that require a dynamic key in the state object.
@@ -83,6 +94,7 @@ const actions = createActions(updates)
 
 // models.map(m => console.log(m))
 models.map(m => console.log(m.keyseq.keys))
+models.map(_ => m.redraw())
 
 // Listeners
 
@@ -109,8 +121,51 @@ addEventListener('keydown', ke =>
     ke.key === 'x' && rpc.rpc('background').nada())
 
 addEventListener('keydown', ke =>
-    ke.key === 'c' && rpc.rpc('background').submod.val(1)
+    ke.key === 'c' && rpc.rpc('background').submod.val(1))
 
 Object.assign((window as any), {
     rpc,
+})
+
+// Iframe experiments
+
+const proxy = function(vnode: any){
+    var doc = vnode.dom.contentDocument || vnode.dom.contentWindow.document;
+
+    if (doc.readyState === "complete") {
+        m.render( vnode.dom.contentDocument.documentElement, vnode.children )
+    } else{
+        setTimeout(function(){proxy(vnode);},0);
+    }
+}
+
+const Iframe = {
+    oncreate: proxy,
+    onupdate: proxy,
+
+    view: () =>
+        m('iframe', {src: browser.runtime.getURL('blank.html')})
+}
+
+const App = {
+    view: () => [
+        m(Iframe, [
+            m('div', models().keyseq.keys.join(", ")),
+            m('input', { oninput: e => actions.ui.oninput(e.target.value), value: models().ui.text }),
+        ])
+    ]
+}
+
+addEventListener("keydown", (ke: KeyboardEvent) => {
+    if (ke.key === 'o') {
+        const root = document.createElement('div')
+        document.body.appendChild(root)
+
+        m.mount(root, App)
+
+        Object.assign((window as any), {
+            m,
+            root,
+        })
+    }
 })
