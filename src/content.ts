@@ -118,8 +118,8 @@ export type ContentActions = typeof actions
 
 // Views
 
-models.map(m => console.log(m.uiframe, m.mode, m.keyseq))
-models.map(m => console.log(m.keyseq.keys))
+// models.map(m => console.log(m.uiframe, m.mode, m.keyseq))
+// models.map(m => console.log(m.keyseq.keys))
 
 /**
  * Render all of our visible UI if it should be visible.
@@ -202,10 +202,14 @@ const App: m.Component<ContentAttrs> = {
             [
                 m("head", [
                     m("title", "Tridactyl Commandline"),
-                    m("link", { href: "static/css/commandline.css", rel: "stylesheet" })
+                    [
+                        "static/css/commandline.css",
+                        "static/themes/default/default.css",
+                    ].map(url =>
+                        m("link", { href: browser.runtime.getURL(url), rel: "stylesheet" }))
                 ]),
                 m("body", [
-                    m('div', model.keyseq.keys.join(", ")),
+                    m('pre', JSON.stringify(model)),
                     m(TriInput, {model, actions})
                 ])
             ])
