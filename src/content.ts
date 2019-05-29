@@ -143,15 +143,21 @@ Object.assign((window as any), {
 
 // Iframe experiments
 
-import Iframe from '~components/iframe'
+import Iframe from '~/components/iframe'
 
 const App = {
     view: (vnode) => {
-        const { model, actions } = vnode.attrs as { model: ContentState, actions: ContentActions }
+        const { model, actions } = vnode.attrs as ContentAttrs
         return [
             model.uiframe.visible && m(Iframe, [
-                m('div', model.keyseq.keys.join(", ")),
-                m(TriInput, vnode.attrs)
+                m("head", [
+                    m("title", "Tridactyl Commandline"),
+                    m("link", { href: "static/css/commandline.css", rel: "stylesheet" })
+                ]),
+                m("body", [
+                    m('div', model.keyseq.keys.join(", ")),
+                    m(TriInput, vnode.attrs)
+                ])
             ])
         ]
     }
@@ -160,7 +166,7 @@ const App = {
 addEventListener("keydown", (ke: KeyboardEvent) => {
     if (ke.key === 'o') {
         const root = document.createElement('div')
-        document.body.appendChild(root)
+        document.documentElement.appendChild(root)
 
         m.mount(root, {
             view: () => m(App, { model: models(), actions })

@@ -1,0 +1,57 @@
+#cmdline_iframe {
+    position: fixed !important;
+    bottom: 0 !important;
+    z-index: 2147483647 !important;
+    width: 100% !important;
+    height: 0 !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+.TridactylStatusIndicator {
+    position: fixed !important;
+    font-family: var(--tridactyl-status-font-family) !important;
+    background: var(--tridactyl-status-bg) !important;
+    color: var(--tridactyl-status-fg) !important;
+    border: var(--tridactyl-status-border) !important;
+    border-radius: var(--tridactyl-status-border-radius) !important;
+    font-size: var(--tridactyl-status-font-size) !important;
+    padding: 0.25ex !important;
+    right: 2px !important;
+    bottom: 2px !important;
+    z-index: 2147483646 !important; /* this is one less than the command line so that it is hidden by it */
+    line-height: initial !important; /* cleanslate doesn't seem to set this correctly */
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+
+.TridactylPrivate {
+    border: purple solid 1.5px !important;
+    background: #f9f5ff !important;
+}
+
+.TridactylInvisible {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.TridactylEditing {
+    background: var(--tridactyl-externaledit-bg);
+}
+
+@media print {
+    .TridactylStatusIndicator {
+        display: none !important;
+    }
+}
+
+.TridactylSearchHighlight {
+    opacity: 0.5 !important;
+    background-color: var(--tridactyl-search-highlight-color) !important;
+    z-index: 2147483647 !important;
+}

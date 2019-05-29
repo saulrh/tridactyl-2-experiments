@@ -38,6 +38,7 @@ module.exports = {
       { from: "src/manifest.json" },
       { from: "src/test.html" },
       { from: "src/blank.html" },
+      { from: "src/static", to: "static", },
     ]),
   ],
 }

@@ -10,12 +10,15 @@ const proxy = function(vnode: any){
     }
 }
 
-export const Iframe = {
+export const Iframe: m.Component= {
     oncreate: proxy,
     onupdate: proxy,
-
     view: () =>
-        m('iframe', {src: browser.runtime.getURL('blank.html')})
+        m('iframe', {
+            src: browser.runtime.getURL('blank.html'),
+            id: "cmdline_iframe",
+            class: "cleanslate"
+        })
 }
 
 export default Iframe

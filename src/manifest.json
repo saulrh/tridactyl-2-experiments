@@ -6,6 +6,10 @@
     {
       "matches": [ "<all_urls>" ],
       "js": [ "content.js" ],
+      "css": [ 
+        "static/css/cleanslate.css",
+        "static/css/content.css"
+      ], 
       "run_at": "document_start"
     }
   ],
