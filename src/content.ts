@@ -1,6 +1,7 @@
 import * as flyd from "flyd"
 import produce from "immer"
 import * as m from 'mithril'
+import TriInput from "~/components/input"
 
 import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 
@@ -173,7 +174,7 @@ Object.assign((window as any), {
 
 // Iframe experiments
 
-import Iframe from '~components/iframe'
+import Iframe from '~/components/iframe'
 
 export type ContentAttrs = {
     model: ContentState,
@@ -185,9 +186,27 @@ export interface Component<Attrs = ContentAttrs> {
 }
 
 const App: m.Component<ContentAttrs> = {
-    view: ({attrs: { model, actions}}) =>
-        model.uiframe.visible && m(Iframe, [
-            m('div', model.keyseq.keys.join(", ")),
-            m('input', { oninput: e => actions.uiframe.oninput(e.target.value), value: model.uiframe.commandline.text }),
-        ])
+    view: ({attrs: {model, actions}}) =>
+        model.uiframe.visible && m(Iframe,
+            {
+                src: browser.runtime.getURL('blank.html'),
+                style: {
+                    position: 'fixed',
+                    bottom: 0,
+                    border: 0,
+                    padding: 0,
+                    margin: 0,
+                    width: '100%',
+                },
+            },
+            [
+                m("head", [
+                    m("title", "Tridactyl Commandline"),
+                    m("link", { href: "static/css/commandline.css", rel: "stylesheet" })
+                ]),
+                m("body", [
+                    m('div', model.keyseq.keys.join(", ")),
+                    m(TriInput, {model, actions})
+                ])
+            ])
 }

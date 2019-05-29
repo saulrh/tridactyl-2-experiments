@@ -13,9 +13,8 @@ const proxy = function(vnode: any){
 export const Iframe = {
     oncreate: proxy,
     onupdate: proxy,
-
-    view: () =>
-        m('iframe', {src: browser.runtime.getURL('blank.html')})
+    view: ({attrs}) =>
+        m('iframe', attrs)
 }
 
 export default Iframe
