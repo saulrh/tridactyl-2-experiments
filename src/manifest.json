@@ -2,13 +2,15 @@
   "manifest_version": 2,
   "name": "Tridactyl-Meiosis",
   "version": "0.0.1",
-  // "background": { },
   "content_scripts": [
     {
       "matches": [ "<all_urls>" ],
       "js": [ "content.js" ],
       "run_at": "document_start"
     }
+  ],
+  "web_accessible_resources": [
+    "test.html"
   ],
   "content_security_policy": "script-src 'unsafe-eval' 'self'; object-src 'self'",
   "permissions": [

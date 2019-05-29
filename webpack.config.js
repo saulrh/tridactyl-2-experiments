@@ -1,17 +1,19 @@
 const { TsConfigPathsPlugin } = require("awesome-typescript-loader")
 const CopyWebPackPlugin = require("copy-webpack-plugin")
+// const WebextensionPlugin = require('webpack-webextension-plugin')
 
 module.exports = {
   mode: "development",
 
   entry: {
     content: "./src/content.ts",
+    mithriltest: "./src/mithriltest.ts",
   },
 
-  output: {
-    filename: "[name].js",
-    path: __dirname + "/build",
-  },
+  // output: {
+  //   filename: "[name].js",
+  //   path: __dirname + "/build",
+  // },
 
   devtool: "source-map",
 
@@ -33,6 +35,8 @@ module.exports = {
   plugins: [
     new CopyWebPackPlugin([
       { from: "src/manifest.json" },
+      { from: "src/test.html" },
+      { from: "src/blank.html" },
     ]),
   ],
 }
