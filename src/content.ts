@@ -132,12 +132,15 @@ Object.assign((window as any), {
 import Iframe from '~components/iframe'
 
 const App = {
-    view: () => [
-        m(Iframe, [
-            m('div', models().keyseq.keys.join(", ")),
-            m('input', { oninput: e => actions.ui.oninput(e.target.value), value: models().ui.text }),
-        ])
-    ]
+    view: (vnode) => {
+        const { model, actions } = vnode.attrs
+        return [
+            m(Iframe, [
+                m('div', model.keyseq.keys.join(", ")),
+                m('input', { oninput: e => actions.ui.oninput(e.target.value), value: model.ui.text }),
+            ])
+        ]
+    }
 }
 
 addEventListener("keydown", (ke: KeyboardEvent) => {
@@ -145,7 +148,9 @@ addEventListener("keydown", (ke: KeyboardEvent) => {
         const root = document.createElement('div')
         document.body.appendChild(root)
 
-        m.mount(root, App)
+        m.mount(root, {
+            view: () => m(App, { model: models(), actions })
+        })
 
         Object.assign((window as any), {
             m,
