@@ -2,6 +2,7 @@ import * as flyd from "flyd"
 import produce from "immer"
 import * as m from 'mithril'
 import TriInput from "~/components/input"
+import TriStatus from "~/components/status"
 
 import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 
@@ -35,9 +36,17 @@ export type ContentState = Readonly<{
         previous?: ModeType
     },
     uiframe: {
-        visible: boolean,
+        hidden: boolean,
         commandline: {
+            hidden: boolean,
+            history: string[],
             text: string
+        },
+        statusbar: {
+            hidden: boolean,
+        },
+        completions: {
+            hidden: boolean,
         }
     },
 }>
@@ -149,14 +158,15 @@ const App = {
     view: (vnode) => {
         const { model, actions } = vnode.attrs as ContentAttrs
         return [
-            model.uiframe.visible && m(Iframe, [
+            model.uiframe.hidden && m(Iframe, [
                 m("head", [
                     m("title", "Tridactyl Commandline"),
                     m("link", { href: "static/css/commandline.css", rel: "stylesheet" })
                 ]),
                 m("body", [
                     m('div', model.keyseq.keys.join(", ")),
-                    m(TriInput, vnode.attrs)
+                    m(TriInput, vnode.attrs),
+                    m(TriStatus, vnode.attrs),
                 ])
             ])
         ]
@@ -164,7 +174,7 @@ const App = {
 }
 
 addEventListener("keydown", (ke: KeyboardEvent) => {
-    if (ke.key === 'o') {
+    if (ke.key === ':') {
         const root = document.createElement('div')
         document.documentElement.appendChild(root)
 

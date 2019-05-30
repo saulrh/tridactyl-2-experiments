@@ -1,4 +1,4 @@
 /dist/
 /.cache/
-/tags/
+/tags
 /node_modules/
