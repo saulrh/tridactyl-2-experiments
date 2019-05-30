@@ -21,10 +21,6 @@ import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 /**** TYPES ****/
 
 type ModeType = 'normal' | 'ignore'
-export type ContentAttrs = {
-    model: ContentState,
-    actions: ContentActions
-}
 
 // KeySeq and Mode states could trivially be moved elsewhere if that becomes useful.
 
@@ -36,17 +32,19 @@ export type ContentState = Readonly<{
         previous?: ModeType
     },
     uiframe: {
-        hidden: boolean,
+        visible: boolean,
+        mounted: boolean,
+        root?: HTMLElement,
         commandline: {
-            hidden: boolean,
+            visible: boolean,
             history: string[],
             text: string
         },
         statusbar: {
-            hidden: boolean,
+            visible: boolean,
         },
         completions: {
-            hidden: boolean,
+            visible: boolean,
         }
     },
 }>
@@ -57,17 +55,18 @@ const initial: ContentState = {
         current: 'normal',
     },
     uiframe: {
-        hidden: false,
+        visible: false,
+        mounted: false,
         commandline: {
-            hidden: false,
+            visible: false,
             history: [],
             text: '',
         },
         statusbar: {
-            hidden: false
+            visible: false
         },
         completions: {
-            hidden: false,
+            visible: false,
         }
     },
 }
@@ -77,33 +76,48 @@ export type Updater = (model: ContentState) => ContentState
 export type Updates = flyd.Stream<Updater>
 export type Models = flyd.Stream<ContentState>
 
-export type Action = (...args: any[]) => Updates
 export type Actions = {
-    [key: string]: Action
+    [key: string]: Updater
+}
+
+export function dispatch(updater: Updater) {
+    updates(updater)
 }
 
 /**** Actions ****/
 
 // Helper functions to make using produce a bit less frustrating.
 export type Mutator = (model: ContentState) => void
-export const mutator = (updates: Updates, fn: Mutator) =>
-    updates(model => produce(model, fn))
+export const mutator = (fn: Mutator) =>
+    (model: ContentState) => produce(model, fn)
 
 const createActions = (updates: Updates) => ({ // : { [key: string]: Actions } => ({
-    mode: modeActions(updates),
-    keyseq: keyseqActions(updates),
+    mode: modeActions,
+    keyseq: keyseqActions,
     uiframe: {
-        oninput: (val: string) => mutator(updates, ({uiframe}) => { uiframe.commandline.text = val }),
-        setvisible: (b: boolean) => mutator(updates, ({uiframe}) => {uiframe.hidden = b}),
+        oninput: (val: string) => mutator(({uiframe}) => { uiframe.commandline.text = val }),
+        mount: () => mutator(model => {
+            const root = document.createElementNS('http://www.w3.org/1999/xhtml', 'div')
+            document.documentElement.appendChild(root)
+            model.uiframe.mounted = true
+            model.uiframe.root = root
+        }),
+        unmount: () => mutator(({uiframe}) => {
+            uiframe.root.remove()
+            uiframe.mounted = false
+            uiframe.root = undefined
+        }),
+        setvisible: (vis: boolean) => mutator(({uiframe}) => {
+            uiframe.visible = vis
+        }),
     }
 })
 
 // Imagine these are bigger and maybe imported from different files.
-const modeActions = (updates: Updates): Actions => ({
+const modeActions = {
     change_mode: (newmode: ModeType) =>
-        mutator(updates,
-                ({mode}) => { mode.current = newmode })
-})
+        mutator(({mode}) => { mode.current = newmode })
+}
 
 // If we ever need state/actions that require a dynamic key in the state object.
 // const moveableActions = (updates: Updates, id: keyof State) => ({
@@ -123,13 +137,29 @@ export type ContentActions = typeof actions
 
 // Views
 
-models.map(m => console.log(m.uiframe, m.mode, m.keyseq))
-models.map(m => console.log(m.keyseq.keys))
-models.map(_ => m.redraw())
+// models.map(m => console.log(m.uiframe, m.mode, m.keyseq))
+// models.map(m => console.log(m.keyseq.keys))
+
+/**
+ * Render all of our visible UI if it should be visible.
+ *
+ * If it shouldn't be visible, completely remove it.
+ */
+models.map(model => {
+    if (model.uiframe.visible) {
+        if (!model.uiframe.mounted) {
+            dispatch(actions.uiframe.mount())
+            return
+        }
+        m.render(model.uiframe.root, m(App, { model: models(), actions }))
+    } else if (model.uiframe.mounted) {
+        dispatch(actions.uiframe.unmount())
+    }
+})
 
 // Listeners
 
-addEventListener("keydown", (ke: KeyboardEvent) => actions.keyseq.keydown(ke.key))
+addEventListener("keydown", (ke: KeyboardEvent) => dispatch(actions.keyseq.keydown(ke.key)))
 addEventListener("keydown", (ke: KeyboardEvent) =>
     ke.key === 't' && (document.location.href = browser.runtime.getURL('test.html')))
 
@@ -154,6 +184,9 @@ addEventListener('keydown', ke =>
 addEventListener('keydown', ke =>
     ke.key === 'c' && rpc.rpc('background').submod.val(1))
 
+addEventListener('keydown', ke =>
+    ke.key === 'o' && dispatch(actions.uiframe.setvisible(!models().uiframe.visible)))
+
 Object.assign((window as any), {
     rpc,
 })
@@ -162,39 +195,49 @@ Object.assign((window as any), {
 
 import Iframe from '~/components/iframe'
 
-const App = {
-    view: (vnode) => {
-        const { model, actions } = vnode.attrs as ContentAttrs
-        return [
-            model.uiframe.hidden && m(Iframe, [
-                m("head", [
-                    m("title", "Tridactyl Commandline"),
-                    m("link", { href: "static/css/commandline.css", rel: "stylesheet" })
-                ]),
-                m("body", [
-                    m('div', model.keyseq.keys.join(", ")),
-                    m(TriInput, vnode.attrs),
-                    m(TriStatus, vnode.attrs),
-                ])
-            ])
-        ]
-    }
+export type ContentAttrs = {
+    model: ContentState,
+    actions: ContentActions
 }
 
-addEventListener("keydown", (ke: KeyboardEvent) => {
-    if (ke.key === ':') {
-        const root = document.createElement('div')
-        document.documentElement.appendChild(root)
+export interface Component<Attrs = ContentAttrs> {
+    view: (vnode: m.Vnode<Attrs>) => m.Children | null | void
+}
 
-        m.mount(root, {
-            view: () => m(App, { model: models(), actions })
-        })
-
-        actions.uiframe.setvisible(true)
-
-        Object.assign((window as any), {
-            m,
-            root,
-        })
-    }
-})
+const App: m.Component<ContentAttrs> = {
+    view: ({attrs: {model, actions}}) =>
+        model.uiframe.visible && m(Iframe,
+            {
+                src: browser.runtime.getURL('blank.html'),
+                // TODO: Use the component lifecycle events oncreate and
+                // onupdate to find the offsetHeight of the iframe and adjust
+                // height. Avoid loops.
+                style: {
+                    position: 'fixed',
+                    bottom: 0,
+                    border: 0,
+                    padding: 0,
+                    margin: 0,
+                    width: '100%',
+                },
+            },
+            [
+                m("head", [
+                    m("title", "Tridactyl Commandline"),
+                    [
+                        "static/css/commandline.css",
+                        "static/themes/default/default.css",
+                    ].map(url =>
+                        m("link", { href: browser.runtime.getURL(url), rel: "stylesheet" }))
+                ]),
+                m("body", [
+                    // Can't stringify the whole model, probably because
+                    // stringify does some magic and model contains a reference
+                    // to the div that gets removed.
+                    // m('pre', JSON.stringify(model)),
+                    m('pre', JSON.stringify(model.uiframe.commandline)),
+                    m(TriInput, {model, actions}),
+                    m(TriStatus, {model, actions}),
+                ])
+            ])
+}

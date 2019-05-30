@@ -1,7 +1,7 @@
 import * as m from "mithril"
 import {ContentAttrs} from '~/content'
 
-const TriStatus: m.Component = {
+const TriStatus: m.Component<ContentAttrs> = {
     view: (vnode) => {
         const {model, actions} = vnode.attrs as ContentAttrs
         return m("div", {id: "status-bar-holder"}, [
