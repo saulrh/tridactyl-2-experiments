@@ -57,9 +57,17 @@ const initial: ContentState = {
         current: 'normal',
     },
     uiframe: {
-        visible: false,
+        hidden: false,
         commandline: {
+            hidden: false,
+            history: [],
             text: '',
+        },
+        statusbar: {
+            hidden: false
+        },
+        completions: {
+            hidden: false,
         }
     },
 }
@@ -86,7 +94,7 @@ const createActions = (updates: Updates) => ({ // : { [key: string]: Actions } =
     keyseq: keyseqActions(updates),
     uiframe: {
         oninput: (val: string) => mutator(updates, ({uiframe}) => { uiframe.commandline.text = val }),
-        setvisible: (b: boolean) => mutator(updates, ({uiframe}) => {uiframe.visible = b}),
+        setvisible: (b: boolean) => mutator(updates, ({uiframe}) => {uiframe.hidden = b}),
     }
 })
 
