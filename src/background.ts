@@ -1,12 +1,16 @@
-import * as rpc from '~rpc'
+import * as rpc from "~rpc"
 
 export const rpcexports = {
     nada: async () => 42,
-    err: () => { throw Error('hi there') },
+    err: () => {
+        throw Error("hi there")
+    },
     submod: {
         val: async x => 8 + x,
-        err: () => { throw Error('four') },
-    }
+        err: () => {
+            throw Error("four")
+        },
+    },
 }
 
 export type BGRPCExports = typeof rpcexports
@@ -18,7 +22,7 @@ browser.runtime.onMessage.addListener((msg: rpc.RPCMsg, sender: rpc.Sender) => {
     return rpc.onMessage(rpcexports)(msg, sender)
 })
 
-Object.assign((window as any), {
+Object.assign(window as any, {
     rpc,
     knowntabs,
 })

@@ -1,20 +1,21 @@
-import * as m from 'mithril'
+import * as m from "mithril"
 
-const proxy = function(vnode: any){
-    var doc = vnode.dom.contentDocument || vnode.dom.contentWindow.document;
+const proxy = function(vnode: any) {
+    var doc = vnode.dom.contentDocument || vnode.dom.contentWindow.document
 
     if (doc.readyState === "complete") {
-        m.render( vnode.dom.contentDocument.documentElement, vnode.children )
-    } else{
-        setTimeout(function(){proxy(vnode);},0);
+        m.render(vnode.dom.contentDocument.documentElement, vnode.children)
+    } else {
+        setTimeout(function() {
+            proxy(vnode)
+        }, 0)
     }
 }
 
 export const Iframe = {
     oncreate: proxy,
     onupdate: proxy,
-    view: ({attrs}) =>
-        m('iframe', attrs)
+    view: ({ attrs }) => m("iframe", attrs),
 }
 
 export default Iframe

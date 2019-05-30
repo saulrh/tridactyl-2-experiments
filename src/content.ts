@@ -1,10 +1,10 @@
 import * as flyd from "flyd"
 import produce from "immer"
-import * as m from 'mithril'
+import * as m from "mithril"
 import TriInput from "~/components/input"
 import TriStatus from "~/components/status"
 
-import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
+import { KeyseqState, keyseqActions, KeyseqInitial } from "~/keyseq/state"
 
 /*
  * Meiosis demo in typescript with immutable state.
@@ -20,39 +20,39 @@ import {KeyseqState, keyseqActions, KeyseqInitial} from '~/keyseq/state';
 
 /**** TYPES ****/
 
-type ModeType = 'normal' | 'ignore'
+type ModeType = "normal" | "ignore"
 
 // KeySeq and Mode states could trivially be moved elsewhere if that becomes useful.
 
 // Readonly is not recursive, but that's OK
 export type ContentState = Readonly<{
-    keyseq: KeyseqState,
+    keyseq: KeyseqState
     mode: {
         current: ModeType
         previous?: ModeType
-    },
+    }
     uiframe: {
-        visible: boolean,
-        mounted: boolean,
-        root?: HTMLElement,
+        visible: boolean
+        mounted: boolean
+        root?: HTMLElement
         commandline: {
-            visible: boolean,
-            history: string[],
+            visible: boolean
+            history: string[]
             text: string
-        },
-        statusbar: {
-            visible: boolean,
-        },
-        completions: {
-            visible: boolean,
         }
-    },
+        statusbar: {
+            visible: boolean
+        }
+        completions: {
+            visible: boolean
+        }
+    }
 }>
 
 const initial: ContentState = {
     keyseq: KeyseqInitial,
     mode: {
-        current: 'normal',
+        current: "normal",
     },
     uiframe: {
         visible: false,
@@ -60,14 +60,14 @@ const initial: ContentState = {
         commandline: {
             visible: false,
             history: [],
-            text: '',
+            text: "",
         },
         statusbar: {
-            visible: false
+            visible: false,
         },
         completions: {
             visible: false,
-        }
+        },
     },
 }
 
@@ -88,35 +88,47 @@ export function dispatch(updater: Updater) {
 
 // Helper functions to make using produce a bit less frustrating.
 export type Mutator = (model: ContentState) => void
-export const mutator = (fn: Mutator) =>
-    (model: ContentState) => produce(model, fn)
+export const mutator = (fn: Mutator) => (model: ContentState) =>
+    produce(model, fn)
 
-const createActions = (updates: Updates) => ({ // : { [key: string]: Actions } => ({
+const createActions = (updates: Updates) => ({
+    // : { [key: string]: Actions } => ({
     mode: modeActions,
     keyseq: keyseqActions,
     uiframe: {
-        oninput: (val: string) => mutator(({uiframe}) => { uiframe.commandline.text = val }),
-        mount: () => mutator(model => {
-            const root = document.createElementNS('http://www.w3.org/1999/xhtml', 'div')
-            document.documentElement.appendChild(root)
-            model.uiframe.mounted = true
-            model.uiframe.root = root
-        }),
-        unmount: () => mutator(({uiframe}) => {
-            uiframe.root.remove()
-            uiframe.mounted = false
-            uiframe.root = undefined
-        }),
-        setvisible: (vis: boolean) => mutator(({uiframe}) => {
-            uiframe.visible = vis
-        }),
-    }
+        oninput: (val: string) =>
+            mutator(({ uiframe }) => {
+                uiframe.commandline.text = val
+            }),
+        mount: () =>
+            mutator(model => {
+                const root = document.createElementNS(
+                    "http://www.w3.org/1999/xhtml",
+                    "div"
+                )
+                document.documentElement.appendChild(root)
+                model.uiframe.mounted = true
+                model.uiframe.root = root
+            }),
+        unmount: () =>
+            mutator(({ uiframe }) => {
+                uiframe.root.remove()
+                uiframe.mounted = false
+                uiframe.root = undefined
+            }),
+        setvisible: (vis: boolean) =>
+            mutator(({ uiframe }) => {
+                uiframe.visible = vis
+            }),
+    },
 })
 
 // Imagine these are bigger and maybe imported from different files.
 const modeActions = {
     change_mode: (newmode: ModeType) =>
-        mutator(({mode}) => { mode.current = newmode })
+        mutator(({ mode }) => {
+            mode.current = newmode
+        }),
 }
 
 // If we ever need state/actions that require a dynamic key in the state object.
@@ -125,11 +137,14 @@ const modeActions = {
 //      produce(model, ({[id]}) => void (id.foo = 1)))
 // })
 
-
 /**** Meiosis setup ****/
 
 const updates: Updates = flyd.stream()
-const models: Models = flyd.scan((state: ContentState, fn: Updater) => fn(state), initial, updates)
+const models: Models = flyd.scan(
+    (state: ContentState, fn: Updater) => fn(state),
+    initial,
+    updates
+)
 
 const actions = createActions(updates)
 
@@ -159,44 +174,60 @@ models.map(model => {
 
 // Listeners
 
-addEventListener("keydown", (ke: KeyboardEvent) => dispatch(actions.keyseq.keydown(ke.key)))
 addEventListener("keydown", (ke: KeyboardEvent) =>
-    ke.key === 't' && (document.location.href = browser.runtime.getURL('test.html')))
+    dispatch(actions.keyseq.keydown(ke.key))
+)
+addEventListener(
+    "keydown",
+    (ke: KeyboardEvent) =>
+        ke.key === "t" &&
+        (document.location.href = browser.runtime.getURL("test.html"))
+)
 
 // RPC
 
 // TODO:
 // Combine RPC funcs from other files (namespaced)
 
-import * as rpc from '~rpc'
+import * as rpc from "~rpc"
 
 export const rpcexports = {
     stat: async () => models().mode.current,
     nada: async () => 42,
-    err: () => { throw Error('hi there') },
+    err: () => {
+        throw Error("hi there")
+    },
 }
 
 browser.runtime.onMessage.addListener(rpc.onMessage(rpcexports))
 
-addEventListener('keydown', ke =>
-    ke.key === 'x' && rpc.rpc('background').nada())
+addEventListener(
+    "keydown",
+    ke => ke.key === "x" && rpc.rpc("background").nada()
+)
 
-addEventListener('keydown', ke =>
-    ke.key === 'c' && rpc.rpc('background').submod.val(1))
+addEventListener(
+    "keydown",
+    ke => ke.key === "c" && rpc.rpc("background").submod.val(1)
+)
 
-addEventListener('keydown', ke =>
-    ke.key === 'o' && dispatch(actions.uiframe.setvisible(!models().uiframe.visible)))
+addEventListener(
+    "keydown",
+    ke =>
+        ke.key === "o" &&
+        dispatch(actions.uiframe.setvisible(!models().uiframe.visible))
+)
 
-Object.assign((window as any), {
+Object.assign(window as any, {
     rpc,
 })
 
 // Iframe experiments
 
-import Iframe from '~/components/iframe'
+import Iframe from "~/components/iframe"
 
 export type ContentAttrs = {
-    model: ContentState,
+    model: ContentState
     actions: ContentActions
 }
 
@@ -205,20 +236,22 @@ export interface Component<Attrs = ContentAttrs> {
 }
 
 const App: m.Component<ContentAttrs> = {
-    view: ({attrs: {model, actions}}) =>
-        model.uiframe.visible && m(Iframe,
+    view: ({ attrs: { model, actions } }) =>
+        model.uiframe.visible &&
+        m(
+            Iframe,
             {
-                src: browser.runtime.getURL('blank.html'),
+                src: browser.runtime.getURL("blank.html"),
                 // TODO: Use the component lifecycle events oncreate and
                 // onupdate to find the offsetHeight of the iframe and adjust
                 // height. Avoid loops.
                 style: {
-                    position: 'fixed',
+                    position: "fixed",
                     bottom: 0,
                     border: 0,
                     padding: 0,
                     margin: 0,
-                    width: '100%',
+                    width: "100%",
                 },
             },
             [
@@ -228,16 +261,21 @@ const App: m.Component<ContentAttrs> = {
                         "static/css/commandline.css",
                         "static/themes/default/default.css",
                     ].map(url =>
-                        m("link", { href: browser.runtime.getURL(url), rel: "stylesheet" }))
+                        m("link", {
+                            href: browser.runtime.getURL(url),
+                            rel: "stylesheet",
+                        })
+                    ),
                 ]),
                 m("body", [
                     // Can't stringify the whole model, probably because
                     // stringify does some magic and model contains a reference
                     // to the div that gets removed.
                     // m('pre', JSON.stringify(model)),
-                    m('pre', JSON.stringify(model.uiframe.commandline)),
-                    m(TriInput, {model, actions}),
-                    m(TriStatus, {model, actions}),
-                ])
-            ])
+                    m("pre", JSON.stringify(model.uiframe.commandline)),
+                    m(TriInput, { model, actions }),
+                    m(TriStatus, { model, actions }),
+                ]),
+            ]
+        ),
 }
