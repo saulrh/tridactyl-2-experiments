@@ -17,6 +17,7 @@
         "awesome-typescript-loader": "^5.2.1",
         "copy-webpack-plugin": "^5.0.3",
         "html-loader": "^0.5.5",
+        "husky": "^2.3.0",
         "prettier": "^1.17.1",
         "source-map-loader": "^0.2.4",
         "typescript": "^3.4.5",
@@ -34,6 +35,12 @@
     "browserslist": [
         "Firefox >= 66"
     ],
+    "husky": {
+        "hooks": {
+            "pre-commit": "yarn run fix",
+            "pre-push": "yarn run fix"
+        }
+    },
     "prettier": {
         "tabWidth": 4,
         "semi": false,
